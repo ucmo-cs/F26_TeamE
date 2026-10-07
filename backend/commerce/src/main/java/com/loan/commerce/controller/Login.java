@@ -6,6 +6,7 @@ import com.loan.commerce.service.AdminService;
 import com.loan.commerce.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -80,18 +81,44 @@ public class Login {
 	}
 
     // Endpoint for admin portal access
-	@GetMapping("/api/admin/portal")
+	@GetMapping(value = "/api/admin/portal", produces = "text/html")
 	@ResponseBody
-	public ResponseEntity<Map<String, String>> adminPortal(HttpSession session) {
-		Object username = session.getAttribute("username");
-		if (!"ADMIN".equals(session.getAttribute("role")) || username == null) {
+	public ResponseEntity<String> adminPortal(HttpSession session) {
+		if (!"ADMIN".equals(session.getAttribute("role")) || session.getAttribute("username") == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-					.body(Map.of("status", "error", "message", "Login required"));
+					.contentType(MediaType.TEXT_HTML)
+					.body("<p>Login required</p>");
 		}
 
-        //temporary: return a welcome message for the admin portal
-		return ResponseEntity.ok(Map.of("status", "ok", "message", "Welcome to the admin portal",
-				"username", username.toString()));
+		return ResponseEntity.ok("""
+				<!doctype html>
+				<html lang="en">
+				<head>
+				  <meta charset="UTF-8">
+				  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+				  <title>Admin</title>
+				  <style>
+				    body { font-family: Arial, sans-serif; margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f3f5f7; }
+				    main { padding: 2rem 2.5rem; background: white; border: 1px solid #d9dee3; border-radius: 8px; text-align: center; }
+				    button { margin-top: 1.25rem; padding: .7rem 1.4rem; color: white; background: #1769aa; border: 0; border-radius: 4px; cursor: pointer; }
+				  </style>
+				</head>
+				<body>
+				  <main>
+				    <h1>you are logged in as admin!</h1>
+				    <form method="post" action="/api/admin/logout">
+				      <button type="submit">Log out</button>
+				    </form>
+				  </main>
+				</body>
+				</html>
+				""");
+	}
+
+	@PostMapping("/api/admin/logout")
+	public String logout(HttpSession session) {
+		session.invalidate();
+		return "redirect:/login";
 	}
 
     // Endpoint for user portal access
