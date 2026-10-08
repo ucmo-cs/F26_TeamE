@@ -1,3 +1,4 @@
+import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/useAuth.ts';
 import { mockCustomerApi } from '../../api/mockCustomerApi.ts';
@@ -13,6 +14,7 @@ import { PageHeader } from '../../components/layout/PageHeader.tsx';
 import { maskAccountNumber, maskRoutingNumber } from '../../utils/formatting.ts';
 
 export const CustomerProfilePage: React.FC = () => {
+  const { t } = useLanguage();
   const { currentUser, refreshSession } = useAuth();
 
   const [loan, setLoan] = useState<Loan | null>(null);
@@ -215,8 +217,8 @@ export const CustomerProfilePage: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title="Profile"
-        description="Manage your contact information and automatic payment account."
+        title={t("Profile")}
+        description={t("Manage your contact information and automatic payment account.")}
       />
 
       {isLoading ? (
@@ -229,7 +231,7 @@ export const CustomerProfilePage: React.FC = () => {
           {/* SECTION A — Personal Information */}
           <Card>
             <div className="pb-3 border-b border-[#D7DEE7]/60 mb-5">
-              <h3 className="text-base font-semibold text-[#172033]">Personal Information</h3>
+              <h3 className="text-base font-semibold text-[#172033]">{t("Personal Information")}</h3>
             </div>
 
             {personalSuccess && (
@@ -246,7 +248,7 @@ export const CustomerProfilePage: React.FC = () => {
 
             <form onSubmit={handleSavePersonal} noValidate className="space-y-5">
               <div className="grid grid-cols-3 gap-6">
-                <FormField label="Name" id="personal-name" required>
+                <FormField label={t("Name")} id="personal-name" required>
                   <TextInput
                     id="personal-name"
                     value={personalName}
@@ -254,16 +256,16 @@ export const CustomerProfilePage: React.FC = () => {
                       setPersonalName(e.target.value);
                       setPersonalSuccess(null);
                     }}
-                    placeholder="Full Name"
+                    placeholder={t("Full Name")}
                     required
                   />
                 </FormField>
 
                 <FormField
-                  label="Email Address"
+                  label={t("Email Address")}
                   id="personal-email"
                   required
-                  hint="Used for prototype login with password customer123"
+                  hint={t("Used for prototype login with password customer123")}
                 >
                   <TextInput
                     id="personal-email"
@@ -278,7 +280,7 @@ export const CustomerProfilePage: React.FC = () => {
                   />
                 </FormField>
 
-                <FormField label="Phone Number" id="personal-phone" required>
+                <FormField label={t("Phone Number")} id="personal-phone" required>
                   <TextInput
                     id="personal-phone"
                     type="tel"
@@ -299,9 +301,9 @@ export const CustomerProfilePage: React.FC = () => {
                   variant="primary"
                   disabled={!isPersonalDirty || isSavingPersonal}
                   isLoading={isSavingPersonal}
-                  loadingText="Saving Personal Information..."
+                  loadingText={t("Saving Personal Information...")}
                 >
-                  Save Personal Information
+                  {t("Save Personal Information")}
                 </Button>
               </div>
             </form>
@@ -310,10 +312,10 @@ export const CustomerProfilePage: React.FC = () => {
           {/* SECTION B — Bank Account */}
           <Card>
             <div className="flex items-center justify-between pb-3 border-b border-[#D7DEE7]/60 mb-5">
-              <h3 className="text-base font-semibold text-[#172033]">Automatic Payment Account</h3>
+              <h3 className="text-base font-semibold text-[#172033]">{t("Automatic Payment Account")}</h3>
               {!isEditingBank && loan?.bankAccount && (
                 <Button variant="secondary" size="sm" onClick={handleStartBankEdit}>
-                  Change Bank Account
+                  {t("Change Bank Account")}
                 </Button>
               )}
             </div>
@@ -333,34 +335,34 @@ export const CustomerProfilePage: React.FC = () => {
             {isEditingBank ? (
               <form onSubmit={handleSaveBank} noValidate className="space-y-5">
                 <div className="grid grid-cols-2 gap-6">
-                  <FormField label="Bank Name" id="bank-name" required>
+                  <FormField label={t("Bank Name")} id="bank-name" required>
                     <TextInput
                       id="bank-name"
                       value={bankName}
                       onChange={(e) => setBankName(e.target.value)}
-                      placeholder="e.g. Example National Bank"
+                      placeholder={t("e.g. Example National Bank")}
                       required
                     />
                   </FormField>
 
-                  <FormField label="Account Type" id="bank-account-type" required>
+                  <FormField label={t("Account Type")} id="bank-account-type" required>
                     <Select
                       id="bank-account-type"
                       value={accountType}
                       onChange={(e) => setAccountType(e.target.value as BankAccountType)}
                     >
-                      <option value="CHECKING">Checking</option>
-                      <option value="SAVINGS">Savings</option>
+                      <option value="CHECKING">{t("Checking")}</option>
+                      <option value="SAVINGS">{t("Savings")}</option>
                     </Select>
                   </FormField>
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
                   <FormField
-                    label="Routing Number"
+                    label={t("Routing Number")}
                     id="bank-routing-number"
                     required
-                    hint="9 digits (accepts leading zeroes)"
+                    hint={t("9 digits (accepts leading zeroes)")}
                   >
                     <TextInput
                       id="bank-routing-number"
@@ -374,10 +376,10 @@ export const CustomerProfilePage: React.FC = () => {
                   </FormField>
 
                   <FormField
-                    label="Account Number"
+                    label={t("Account Number")}
                     id="bank-account-number"
                     required
-                    hint="Preserves leading zeroes"
+                    hint={t("Preserves leading zeroes")}
                   >
                     <TextInput
                       id="bank-account-number"
@@ -397,15 +399,15 @@ export const CustomerProfilePage: React.FC = () => {
                     onClick={handleCancelBankEdit}
                     disabled={isSavingBank}
                   >
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                   <Button
                     type="submit"
                     variant="primary"
                     isLoading={isSavingBank}
-                    loadingText="Saving Bank Account..."
+                    loadingText={t("Saving Bank Account...")}
                   >
-                    Save Bank Account
+                    {t("Save Bank Account")}
                   </Button>
                 </div>
               </form>
@@ -413,7 +415,7 @@ export const CustomerProfilePage: React.FC = () => {
               // Display existing bank account masked per spec Section 18 / Page C3
               <div className="grid grid-cols-4 gap-6">
                 <div>
-                  <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Bank Name</span>
+                  <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Bank Name")}</span>
                   <span className="text-sm font-medium text-[#172033]" id="view-bank-name">
                     {loan.bankAccount.bankName}
                   </span>
@@ -421,16 +423,16 @@ export const CustomerProfilePage: React.FC = () => {
 
                 <div>
                   <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                    Account Type
+                    {t("Account Type")}
                   </span>
                   <span className="text-sm font-medium text-[#172033]" id="view-account-type">
-                    {loan.bankAccount.accountType === 'CHECKING' ? 'Checking' : 'Savings'}
+                    {loan.bankAccount.accountType === 'CHECKING' ? t("Checking") : t("Savings")}
                   </span>
                 </div>
 
                 <div>
                   <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                    Routing Number
+                    {t("Routing Number")}
                   </span>
                   <span className="text-sm font-mono text-[#172033]" id="view-routing-number">
                     {maskRoutingNumber(loan.bankAccount.routingNumber)}
@@ -439,7 +441,7 @@ export const CustomerProfilePage: React.FC = () => {
 
                 <div>
                   <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                    Account Number
+                    {t("Account Number")}
                   </span>
                   <span className="text-sm font-mono text-[#172033]" id="view-account-number">
                     {maskAccountNumber(loan.bankAccount.accountNumber)}
@@ -449,13 +451,13 @@ export const CustomerProfilePage: React.FC = () => {
             ) : (
               <div className="flex items-center justify-between p-4 bg-[#F8FAFC] border border-[#D7DEE7] rounded-[6px]">
                 <div>
-                  <p className="text-sm text-[#5E6B7A]">No bank account has been added.</p>
+                  <p className="text-sm text-[#5E6B7A]">{t("No bank account has been added.")}</p>
                   <p className="text-xs text-[#7B8794] mt-0.5">
-                    Add a bank account to enable automatic payments.
+                    {t("Add a bank account to enable automatic payments.")}
                   </p>
                 </div>
                 <Button variant="primary" size="sm" onClick={handleStartBankEdit}>
-                  Add Bank Account
+                  {t("Add Bank Account")}
                 </Button>
               </div>
             )}

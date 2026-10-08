@@ -1,3 +1,4 @@
+import { useLanguage } from "../i18n/useLanguage.ts";
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth.ts';
@@ -9,6 +10,7 @@ interface RequireAuthProps {
 }
 
 export const RequireAuth: React.FC<RequireAuthProps> = ({ role, children }) => {
+  const { t } = useLanguage();
   const { currentUser, isLoading } = useAuth();
   const location = useLocation();
 
@@ -16,7 +18,7 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({ role, children }) => {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-[#F5F7FA]">
         <div className="text-sm text-[#5E6B7A] font-medium animate-pulse">
-          Loading authentication...
+          {t("Loading authentication...")}
         </div>
       </div>
     );

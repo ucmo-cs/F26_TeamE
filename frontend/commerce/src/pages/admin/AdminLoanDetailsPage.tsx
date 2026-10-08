@@ -1,9 +1,10 @@
+import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { mockAdminLoansApi } from '../../api/mockAdminLoansApi.ts';
 import type { BankAccount, BankAccountType, DayOfWeek, Loan, PaymentFrequency, PaymentSchedule } from '../../types/loan.ts';
-import { DAYS_OF_WEEK, formatFrequencyLabel, formatScheduleDay } from '../../utils/paymentSchedule.ts';
+import { DAYS_OF_WEEK, formatFrequencyLabel, formatScheduleDay, formatMonthDay } from '../../utils/paymentSchedule.ts';
 import { Alert } from '../../components/ui/Alert.tsx';
 import { Button } from '../../components/ui/Button.tsx';
 import { Card } from '../../components/ui/Card.tsx';
@@ -29,6 +30,7 @@ import {
 } from '../../utils/loanCalculations.ts';
 
 export const AdminLoanDetailsPage: React.FC = () => {
+  const { t } = useLanguage();
   const { loanId } = useParams<{ loanId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -295,7 +297,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
     return (
       <div>
         <PageHeader
-          title="Loan Details"
+          title={t("Loan Details")}
           backAction={
             <button
               type="button"
@@ -303,12 +305,12 @@ export const AdminLoanDetailsPage: React.FC = () => {
               className="flex items-center text-xs font-medium text-[#5E6B7A] hover:text-[#12345B] cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4 mr-0.5" />
-              Back to Loans
+              {t("Back to Loans")}
             </button>
           }
         />
         <Card>
-          <p className="text-sm text-[#B42318]">Loan not found.</p>
+          <p className="text-sm text-[#B42318]">{t("Loan not found.")}</p>
         </Card>
       </div>
     );
@@ -318,7 +320,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
     <div>
       <PageHeader
         title={`${loan.customer.name}`}
-        description="Loan Details"
+        description={t("Loan Details")}
         backAction={
           <button
             type="button"
@@ -326,27 +328,27 @@ export const AdminLoanDetailsPage: React.FC = () => {
             className="flex items-center text-xs font-medium text-[#5E6B7A] hover:text-[#12345B] cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4 mr-0.5" />
-            Back to Loans
+            {t("Back to Loans")}
           </button>
         }
         action={
           isEditing ? (
             <div className="flex items-center gap-2">
               <Button variant="secondary" onClick={handleCancelEdit} disabled={isSaving}>
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button
                 variant="primary"
                 onClick={handleSave}
                 isLoading={isSaving}
-                loadingText="Saving Changes..."
+                loadingText={t("Saving Changes...")}
               >
-                Save Changes
+                {t("Save Changes")}
               </Button>
             </div>
           ) : (
             <Button variant="primary" onClick={handleStartEdit}>
-              Edit
+              {t("Edit")}
             </Button>
           )
         }
@@ -356,14 +358,14 @@ export const AdminLoanDetailsPage: React.FC = () => {
       {creationState?.creationSuccess && (
         <Alert variant="success" className="mb-6">
           <div className="space-y-1">
-            <h5 className="font-semibold text-inherit text-sm">Loan created successfully.</h5>
+            <h5 className="font-semibold text-inherit text-sm">{t("Loan created successfully.")}</h5>
             <div className="text-xs text-inherit font-mono pt-1">
-              Prototype customer login: <span className="font-semibold">{creationState.customerEmail}</span>
+              {t("Prototype customer login:")} <span className="font-semibold">{creationState.customerEmail}</span>
               <br />
-              Password: <span className="font-semibold">customer123</span>
+              {t("Password:")} <span className="font-semibold">customer123</span>
             </div>
             <p className="text-xs text-inherit/80 pt-1 italic">
-              No email was sent because this is a frontend prototype.
+              {t("No email was sent because this is a frontend prototype.")}
             </p>
           </div>
         </Alert>
@@ -371,7 +373,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
 
       {saveSuccess && (
         <Alert variant="success" className="mb-6">
-          Changes saved successfully.
+          {t("Changes saved successfully.")}
         </Alert>
       )}
 
@@ -386,16 +388,16 @@ export const AdminLoanDetailsPage: React.FC = () => {
         {/* SECTION A: Loan Summary */}
         <Card className="border-[#D7DEE7]">
           <div className="flex items-center justify-between pb-3 border-b border-[#D7DEE7]/60 mb-5">
-            <h3 className="text-base font-semibold text-[#172033]">Loan Summary</h3>
+            <h3 className="text-base font-semibold text-[#172033]">{t("Loan Summary")}</h3>
             {isEditing && (
-              <span className="text-xs text-[#5E6B7A] italic">Edit mode active</span>
+              <span className="text-xs text-[#5E6B7A] italic">{t("Edit mode active")}</span>
             )}
           </div>
 
           <div className="grid grid-cols-3 gap-6">
             {/* Original Amount */}
             <div>
-              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Original Amount</span>
+              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Original Amount")}</span>
               {isEditing ? (
                 <FormField id="edit-original-amount">
                   <CurrencyInput
@@ -415,9 +417,9 @@ export const AdminLoanDetailsPage: React.FC = () => {
             {/* Remaining Balance (READ-ONLY) */}
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-semibold text-[#5E6B7A]">Remaining Balance</span>
+                <span className="text-xs font-semibold text-[#5E6B7A]">{t("Remaining Balance")}</span>
                 <span className="text-[10px] text-[#7B8794] uppercase tracking-wider bg-[#F5F7FA] px-1.5 py-0.5 rounded border border-[#D7DEE7]">
-                  Read-only
+                  {t("Read-only")}
                 </span>
               </div>
               <span className="text-xl font-semibold text-[#172033] tabular-nums">
@@ -427,7 +429,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
 
             {/* Interest Rate */}
             <div>
-              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Interest Rate</span>
+              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Interest Rate")}</span>
               {isEditing ? (
                 <FormField id="edit-interest-rate">
                   <PercentageInput
@@ -446,7 +448,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
 
             {/* Loan Date */}
             <div>
-              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Loan Date</span>
+              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Loan Date")}</span>
               {isEditing ? (
                 <FormField id="edit-loan-date">
                   <TextInput
@@ -466,7 +468,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
             {/* Minimum Monthly Payment (Calculated / Read-only) */}
             <div>
               <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                Minimum Monthly Payment
+                {t("Minimum Monthly Payment")}
               </span>
               <span className="text-base font-semibold text-[#172033] tabular-nums">
                 {formatCurrency(currentMonthlyMinimum)}
@@ -476,14 +478,14 @@ export const AdminLoanDetailsPage: React.FC = () => {
             {/* Estimated Payoff Date (Calculated / Read-only) */}
             <div>
               <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                Estimated Payoff Date
+                {t("Estimated Payoff Date")}
               </span>
               <span className="text-sm font-medium text-[#172033]">
                 {payoffEstimate
                   ? payoffEstimate.payoffDateFormatted
                   : loan.paymentSchedule
                   ? 'Calculating...'
-                  : 'No schedule configured'}
+                  : t("No schedule configured")}
               </span>
             </div>
           </div>
@@ -492,20 +494,20 @@ export const AdminLoanDetailsPage: React.FC = () => {
         {/* SECTION B: Customer Information */}
         <Card className="border-[#D7DEE7]">
           <div className="pb-3 border-b border-[#D7DEE7]/60 mb-5">
-            <h3 className="text-base font-semibold text-[#172033]">Customer Information</h3>
+            <h3 className="text-base font-semibold text-[#172033]">{t("Customer Information")}</h3>
           </div>
 
           <div className="grid grid-cols-3 gap-6">
             {/* Customer Name */}
             <div>
-              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Customer Name</span>
+              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Customer Name")}</span>
               {isEditing ? (
                 <FormField id="edit-customer-name">
                   <TextInput
                     id="edit-customer-name"
                     value={editCustomerName}
                     onChange={(e) => setEditCustomerName(e.target.value)}
-                    placeholder="Full Name"
+                    placeholder={t("Full Name")}
                   />
                 </FormField>
               ) : (
@@ -515,7 +517,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
 
             {/* Email Address */}
             <div>
-              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Email Address</span>
+              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Email Address")}</span>
               {isEditing ? (
                 <FormField id="edit-customer-email">
                   <TextInput
@@ -533,7 +535,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
 
             {/* Phone Number */}
             <div>
-              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Phone Number</span>
+              <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Phone Number")}</span>
               {isEditing ? (
                 <FormField id="edit-customer-phone">
                   <TextInput
@@ -554,61 +556,61 @@ export const AdminLoanDetailsPage: React.FC = () => {
         {/* SECTION C: Automatic Payment Account */}
         <Card className="border-[#D7DEE7]">
           <div className="pb-3 border-b border-[#D7DEE7]/60 mb-5">
-            <h3 className="text-base font-semibold text-[#172033]">Automatic Payment Account</h3>
+            <h3 className="text-base font-semibold text-[#172033]">{t("Automatic Payment Account")}</h3>
           </div>
 
           {!isEditing && !loan.bankAccount ? (
-            <p className="text-sm text-[#5E6B7A]">No bank account has been configured.</p>
+            <p className="text-sm text-[#5E6B7A]">{t("No bank account has been configured.")}</p>
           ) : isEditing ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-6">
-                <FormField label="Bank Name" id="edit-bank-name">
+                <FormField label={t("Bank Name")} id="edit-bank-name">
                   <TextInput
                     id="edit-bank-name"
                     value={editBankName}
                     onChange={(e) => setEditBankName(e.target.value)}
-                    placeholder="e.g. FivePoint Bank"
+                    placeholder={t("e.g. FivePoint Bank")}
                   />
                 </FormField>
 
-                <FormField label="Account Type" id="edit-account-type">
+                <FormField label={t("Account Type")} id="edit-account-type">
                   <Select
                     id="edit-account-type"
                     value={editAccountType}
                     onChange={(e) => setEditAccountType(e.target.value as BankAccountType)}
                   >
-                    <option value="CHECKING">Checking</option>
-                    <option value="SAVINGS">Savings</option>
+                    <option value="CHECKING">{t("Checking")}</option>
+                    <option value="SAVINGS">{t("Savings")}</option>
                   </Select>
                 </FormField>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                 <FormField
-                  label="Routing Number"
+                  label={t("Routing Number")}
                   id="edit-routing-number"
-                  hint={loan.bankAccount ? `Current: ${maskRoutingNumber(loan.bankAccount.routingNumber)}` : '9-digit routing number'}
+                  hint={loan.bankAccount ? t('Current: {value}', { value: maskRoutingNumber(loan.bankAccount.routingNumber) }) : t("9-digit routing number")}
                 >
                   <TextInput
                     id="edit-routing-number"
                     inputMode="numeric"
                     value={editRoutingNumber}
                     onChange={(e) => setEditRoutingNumber(e.target.value)}
-                    placeholder="Enter new routing number (or keep current)"
+                    placeholder={t("Enter new routing number (or keep current)")}
                   />
                 </FormField>
 
                 <FormField
-                  label="Account Number"
+                  label={t("Account Number")}
                   id="edit-account-number"
-                  hint={loan.bankAccount ? `Current: ${maskAccountNumber(loan.bankAccount.accountNumber)}` : 'Account number'}
+                  hint={loan.bankAccount ? t('Current: {value}', { value: maskAccountNumber(loan.bankAccount.accountNumber) }) : t("Account number")}
                 >
                   <TextInput
                     id="edit-account-number"
                     inputMode="numeric"
                     value={editAccountNumber}
                     onChange={(e) => setEditAccountNumber(e.target.value)}
-                    placeholder="Enter new account number (or keep current)"
+                    placeholder={t("Enter new account number (or keep current)")}
                   />
                 </FormField>
               </div>
@@ -616,25 +618,25 @@ export const AdminLoanDetailsPage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-4 gap-6">
               <div>
-                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Bank Name</span>
+                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Bank Name")}</span>
                 <span className="text-sm font-medium text-[#172033]">
                   {loan.bankAccount?.bankName}
                 </span>
               </div>
               <div>
-                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Account Type</span>
+                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Account Type")}</span>
                 <span className="text-sm font-medium text-[#172033]">
-                  {loan.bankAccount?.accountType === 'CHECKING' ? 'Checking' : 'Savings'}
+                  {loan.bankAccount?.accountType === 'CHECKING' ? t("Checking") : t("Savings")}
                 </span>
               </div>
               <div>
-                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Routing Number</span>
+                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Routing Number")}</span>
                 <span className="text-sm font-mono text-[#172033]">
                   {loan.bankAccount && maskRoutingNumber(loan.bankAccount.routingNumber)}
                 </span>
               </div>
               <div>
-                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Account Number</span>
+                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Account Number")}</span>
                 <span className="text-sm font-mono text-[#172033]">
                   {loan.bankAccount && maskAccountNumber(loan.bankAccount.accountNumber)}
                 </span>
@@ -646,7 +648,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
         {/* SECTION D: Automatic Payment Schedule */}
         <Card className="border-[#D7DEE7]">
           <div className="flex items-center justify-between pb-3 border-b border-[#D7DEE7]/60 mb-5">
-            <h3 className="text-base font-semibold text-[#172033]">Automatic Payment Schedule</h3>
+            <h3 className="text-base font-semibold text-[#172033]">{t("Automatic Payment Schedule")}</h3>
             {isEditing && (
               <label className="flex items-center gap-2 text-xs font-medium text-[#172033] cursor-pointer">
                 <input
@@ -655,21 +657,21 @@ export const AdminLoanDetailsPage: React.FC = () => {
                   onChange={(e) => setHasSchedule(e.target.checked)}
                   className="rounded border-[#BBC6D3] text-[#12345B] focus:ring-[#12345B]"
                 />
-                <span>Configure Automatic Payments</span>
+                <span>{t("Configure Automatic Payments")}</span>
               </label>
             )}
           </div>
 
           {!isEditing && !loan.paymentSchedule ? (
-            <p className="text-sm text-[#5E6B7A]">No automatic payment schedule has been configured.</p>
+            <p className="text-sm text-[#5E6B7A]">{t("No automatic payment schedule has been configured.")}</p>
           ) : isEditing && !hasSchedule ? (
             <p className="text-sm text-[#5E6B7A]">
-              Automatic payments disabled for this loan. Check the box above to configure a schedule.
+              {t("Automatic payments disabled for this loan. Check the box above to configure a schedule.")}
             </p>
           ) : isEditing ? (
             <div className="space-y-5">
               <div className="grid grid-cols-3 gap-6">
-                <FormField label="Frequency" id="edit-frequency">
+                <FormField label={t("Frequency")} id="edit-frequency">
                   <Select
                     id="edit-frequency"
                     value={editFrequency}
@@ -680,16 +682,16 @@ export const AdminLoanDetailsPage: React.FC = () => {
                       setEditPaymentAmount(newMin.toFixed(2));
                     }}
                   >
-                    <option value="MONTHLY">Monthly</option>
-                    <option value="BIWEEKLY">Bi-weekly</option>
-                    <option value="WEEKLY">Weekly</option>
+                    <option value="MONTHLY">{t("Monthly")}</option>
+                    <option value="BIWEEKLY">{t("Bi-weekly")}</option>
+                    <option value="WEEKLY">{t("Weekly")}</option>
                   </Select>
                 </FormField>
 
                 <FormField
-                  label="Payment Amount"
+                  label={t("Payment Amount")}
                   id="edit-payment-amount"
-                  hint={`Minimum required: ${formatCurrency(currentScheduledMinimum)}`}
+                  hint={t('Minimum required: {amount}', { amount: formatCurrency(currentScheduledMinimum) })}
                 >
                   <CurrencyInput
                     id="edit-payment-amount"
@@ -700,7 +702,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
                 </FormField>
 
                 {editFrequency === 'MONTHLY' ? (
-                  <FormField label="Day of Month" id="edit-day-of-month" hint="Day of month (1–28)">
+                  <FormField label={t("Day of Month")} id="edit-day-of-month" hint={t("Day of month (1–28)")}>
                     <Select
                       id="edit-day-of-month"
                       value={editDayOfMonth}
@@ -708,14 +710,13 @@ export const AdminLoanDetailsPage: React.FC = () => {
                     >
                       {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
                         <option key={day} value={day}>
-                          {day}
-                          {day === 1 ? 'st' : day === 2 ? 'nd' : day === 3 ? 'rd' : 'th'} of month
+                          {formatMonthDay(day)}
                         </option>
                       ))}
                     </Select>
                   </FormField>
                 ) : (
-                    <FormField label="Day of Week" id="edit-day-of-week">
+                    <FormField label={t("Day of Week")} id="edit-day-of-week">
                     <Select
                       id="edit-day-of-week"
                       value={editDayOfWeek}
@@ -723,7 +724,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
                     >
                       {DAYS_OF_WEEK.map((d) => (
                         <option key={d.value} value={d.value}>
-                          {editFrequency === 'BIWEEKLY' ? `Every other ${d.label}` : `Every ${d.label}`}
+                          {formatScheduleDay({ frequency: editFrequency, dayOfWeek: d.value, paymentAmount: 0 })}
                         </option>
                       ))}
                     </Select>
@@ -734,15 +735,15 @@ export const AdminLoanDetailsPage: React.FC = () => {
               {/* Dynamic schedule info cards */}
               <div className="p-4 bg-[#F8FAFC] border border-[#D7DEE7] rounded-[6px] grid grid-cols-2 gap-4 text-xs">
                 <div>
-                  <span className="text-[#5E6B7A] block">Minimum Required Payment:</span>
+                  <span className="text-[#5E6B7A] block">{t("Minimum Required Payment:")}</span>
                   <span className="text-sm font-semibold text-[#172033] tabular-nums">
                     {formatCurrency(currentScheduledMinimum)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#5E6B7A] block">Projected Payoff Date:</span>
+                  <span className="text-[#5E6B7A] block">{t("Projected Payoff Date:")}</span>
                   <span className="text-sm font-semibold text-[#172033]">
-                    {payoffEstimate ? payoffEstimate.payoffDateFormatted : 'Payment amount too low'}
+                    {payoffEstimate ? payoffEstimate.payoffDateFormatted : t("Payment amount too low")}
                   </span>
                 </div>
               </div>
@@ -750,45 +751,45 @@ export const AdminLoanDetailsPage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-3 gap-6">
               <div>
-                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Frequency</span>
+                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Frequency")}</span>
                 <span className="text-sm font-medium text-[#172033]">
                   {loan.paymentSchedule && formatFrequencyLabel(loan.paymentSchedule.frequency)}
                 </span>
               </div>
               <div>
-                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Payment Amount</span>
+                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Payment Amount")}</span>
                 <span className="text-sm font-semibold text-[#172033] tabular-nums">
                   {formatCurrency(loan.paymentSchedule?.paymentAmount || 0)}
                 </span>
               </div>
               <div>
-                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Schedule Day</span>
+                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t('Schedule Day')}</span>
                 <span className="text-sm font-medium text-[#172033]">
                   {loan.paymentSchedule && formatScheduleDay(loan.paymentSchedule)}
                 </span>
               </div>
               <div>
                 <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                  Minimum Required Payment
+                  {t("Minimum Required Payment")}
                 </span>
                 <span className="text-sm font-semibold text-[#172033] tabular-nums">
                   {formatCurrency(currentScheduledMinimum)}
                 </span>
               </div>
               <div>
-                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Next Payment Date</span>
+                <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Next Payment Date")}</span>
                 <span className="text-sm font-medium text-[#172033]">
                   {loan.paymentSchedule?.nextPaymentDate
                     ? formatProminentDate(loan.paymentSchedule.nextPaymentDate)
-                    : 'N/A'}
+                    : t("N/A")}
                 </span>
               </div>
               <div>
                 <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                  Estimated Payoff Date
+                  {t("Estimated Payoff Date")}
                 </span>
                 <span className="text-sm font-semibold text-[#172033]">
-                  {payoffEstimate ? payoffEstimate.payoffDateFormatted : 'N/A'}
+                  {payoffEstimate ? payoffEstimate.payoffDateFormatted : t("N/A")}
                 </span>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../i18n/useLanguage.ts';
 import { AlertCircle, CheckCircle2, Info, AlertTriangle } from 'lucide-react';
 import { cn } from '../../utils/formatting.ts';
 
@@ -16,6 +17,7 @@ export const Alert: React.FC<AlertProps> = ({
   icon = true,
   ...props
 }) => {
+  const { t } = useLanguage();
   const styles = {
     success: 'bg-[#E9F6F0] border-[#197A55]/40 text-[#197A55]',
     warning: 'bg-[#FFF5E5] border-[#A45B08]/40 text-[#A45B08]',
@@ -43,7 +45,7 @@ export const Alert: React.FC<AlertProps> = ({
       {icon && icons[variant]}
       <div className="flex-1">
         {title && <h5 className="font-semibold mb-0.5 text-inherit">{title}</h5>}
-        <div className="text-inherit font-normal">{children}</div>
+        <div className="text-inherit font-normal">{typeof children === 'string' ? t(children) : children}</div>
       </div>
     </div>
   );
