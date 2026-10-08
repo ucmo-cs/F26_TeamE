@@ -181,7 +181,7 @@ export const CustomerLoanPage: React.FC = () => {
                   </span>
                 )}
               </div>
-              {loan.paymentSchedule ? (
+              {loan.paymentSchedule && (
                 <Button
                   variant="secondary"
                   size="sm"
@@ -189,15 +189,6 @@ export const CustomerLoanPage: React.FC = () => {
                   className="text-xs"
                 >
                   Manage Payments
-                </Button>
-              ) : (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => navigate('/customer/payments')}
-                  className="text-xs"
-                >
-                  Set Up Payments
                 </Button>
               )}
             </div>
@@ -258,10 +249,12 @@ export const CustomerLoanPage: React.FC = () => {
                   variant="primary"
                   size="sm"
                   onClick={() => navigate('/customer/payments')}
-                  className="shrink-0 text-xs flex items-center gap-1.5"
+                  className="shrink-0 text-xs"
                 >
-                  <span>Set Up Payments</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                    Set Up Payments
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+                  </span>
                 </Button>
               </div>
             )}
