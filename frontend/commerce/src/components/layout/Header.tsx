@@ -23,7 +23,7 @@ export const Header: React.FC = () => {
     <header className="h-16 w-full bg-white border-b border-[#D7DEE7] px-6 flex items-center justify-between z-10 shrink-0">
       <div className="flex items-center gap-3">
         <span className="text-base font-semibold text-[#172033] tracking-tight">
-          Loan Repayment Tracker
+          FivePoint Bank
         </span>
       </div>
 

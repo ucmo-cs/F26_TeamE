@@ -45,7 +45,7 @@ export const AdminLoginPage: React.FC = () => {
       <div className="w-full max-w-[420px] -mt-12">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-semibold text-[#172033] tracking-tight">
-            Loan Repayment Tracker
+            FivePoint Bank
           </h1>
           <p className="text-sm text-[#5E6B7A] mt-1">Administrator Portal</p>
         </div>

@@ -55,7 +55,7 @@ export const INITIAL_MOCK_LOANS: Loan[] = [
     remainingBalance: 38900.5,
     annualInterestRate: 7.1,
     bankAccount: {
-      bankName: 'Commerce First Federal',
+      bankName: 'FivePoint Bank',
       accountType: 'SAVINGS',
       routingNumber: '000034567',
       accountNumber: '000112233445',

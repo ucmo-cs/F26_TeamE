@@ -567,7 +567,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
                     id="edit-bank-name"
                     value={editBankName}
                     onChange={(e) => setEditBankName(e.target.value)}
-                    placeholder="e.g. Commerce Bank"
+                    placeholder="e.g. FivePoint Bank"
                   />
                 </FormField>
 

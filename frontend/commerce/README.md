@@ -1,4 +1,4 @@
-# Commerce Bank frontend
+# FivePoint Bank frontend
 
 React, TypeScript, React Router, and Tailwind CSS prototype for loan repayment tracking.
 Administrators can create and edit loans; customers can view their loan, update their profile
