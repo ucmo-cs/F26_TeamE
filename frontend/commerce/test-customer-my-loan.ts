@@ -207,7 +207,6 @@ async function runCustomerMyLoanTests() {
     console.log('✓ Set Up Payments navigates directly to /customer/payments');
 
     console.log('\n=== ALL CUSTOMER MY LOAN TESTS PASSED! ===');
-    process.exit(0);
   } finally {
     if (browser) await browser.close();
     if (viteProc) {

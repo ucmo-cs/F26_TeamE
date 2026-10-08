@@ -358,7 +358,6 @@ async function runAutomaticPaymentsTests() {
     console.log('✓ Admin Loan Details displays the exact same updated schedule ($75.00 / Weekly / Friday)');
 
     console.log('\n=== ALL AUTOMATIC PAYMENTS TESTS PASSED! ===');
-    process.exit(0);
   } finally {
     if (browser) await browser.close();
     if (viteProc) {

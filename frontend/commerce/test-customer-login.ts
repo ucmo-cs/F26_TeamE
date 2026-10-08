@@ -251,7 +251,6 @@ async function runCustomerLoginTests() {
     console.log('✓ Dynamically created customer Diana Prince successfully logs in with customer123 and loads her loan!');
 
     console.log('=== ALL CUSTOMER LOGIN TESTS PASSED! ===');
-    process.exit(0);
   } finally {
     if (browser) await browser.close();
     if (viteProc) {

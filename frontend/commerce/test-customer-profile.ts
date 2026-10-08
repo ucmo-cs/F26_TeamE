@@ -252,7 +252,6 @@ async function runCustomerProfileTests() {
     console.log('✓ Bank account changes persist across reload with masked display');
 
     console.log('\n=== ALL CUSTOMER PROFILE TESTS PASSED! ===');
-    process.exit(0);
   } finally {
     if (browser) await browser.close();
     if (viteProc) {

@@ -168,7 +168,6 @@ async function runBrowserTests() {
     console.log('✓ Reset demo data functionality resets state and returns to login');
 
     console.log('=== ALL REAL BROWSER TESTS PASSED! ===');
-    process.exit(0);
   } finally {
     if (browser) await browser.close();
     if (viteProc) {

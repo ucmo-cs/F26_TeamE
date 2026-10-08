@@ -1,75 +1,44 @@
-# React + TypeScript + Vite
+# Commerce Bank frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React, TypeScript, React Router, and Tailwind CSS prototype for loan repayment tracking.
+Administrators can create and edit loans; customers can view their loan, update their profile
+and bank account, and configure automatic payments.
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Run these commands from `frontend/commerce`:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```sh
+npm ci
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Open the URL printed by Vite. Demo credentials are available on each login page.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Checks
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```sh
+npm run lint
+npm run build
+npm run test:unit
+npm run test:e2e
 ```
+
+Browser tests use Puppeteer with Chrome at `C:\Program Files\Google\Chrome\Application\chrome.exe`.
+The additional `test:*` scripts in `package.json` cover individual admin and customer flows.
+
+## Structure
+
+- `src/pages`: admin and customer screens.
+- `src/components`: shared controls and application layout.
+- `src/router` and `src/context`: routes, access guards, and authentication state.
+- `src/api`: asynchronous mock services; no backend connection.
+- `src/utils`: formatting, payment calculations, and prototype storage.
+- `src/data`: demo seed data.
+
+Data and demo sessions persist in browser local storage. Use **Reset Demo Data** in the
+development sidebar to restore defaults. This is a prototype: credentials and bank details
+are simulated and must not be used with real customer data.
+
+Screen requirements are documented in `loan-repayment-frontend-content-spec.md` and
+`loan-repayment-frontend-rules-style.md`.

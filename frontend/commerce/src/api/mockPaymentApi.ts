@@ -18,7 +18,7 @@ export const mockPaymentApi = {
     loan.bankAccount = { ...bankAccount };
     savePrototypeLoans(loans);
 
-    return JSON.parse(JSON.stringify(bankAccount));
+    return { ...bankAccount };
   },
 
   /**
@@ -35,6 +35,6 @@ export const mockPaymentApi = {
     loan.paymentSchedule = { ...schedule };
     savePrototypeLoans(loans);
 
-    return JSON.parse(JSON.stringify(schedule));
+    return { ...schedule };
   },
 };

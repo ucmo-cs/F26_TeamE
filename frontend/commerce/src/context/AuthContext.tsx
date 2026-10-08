@@ -5,14 +5,9 @@ import { loadPrototypeSession } from '../utils/prototypeStorage.ts';
 import { AuthContext } from './authContextDef.ts';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
-    try {
-      const session = loadPrototypeSession();
-      return session?.user ?? null;
-    } catch {
-      return null;
-    }
-  });
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(
+    () => loadPrototypeSession()?.user ?? null
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const loginAdmin = async (credentials: AdminLoginCredentials): Promise<AuthUser> => {
@@ -48,12 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const refreshSession = () => {
-    try {
-      const session = loadPrototypeSession();
-      setCurrentUser(session?.user ?? null);
-    } catch {
-      setCurrentUser(null);
-    }
+    setCurrentUser(loadPrototypeSession()?.user ?? null);
   };
 
   return (

@@ -4,7 +4,6 @@ import {
   clearPrototypeSession,
   loadCustomerCredentials,
   loadPrototypeLoans,
-  loadPrototypeSession,
   savePrototypeSession,
 } from '../utils/prototypeStorage.ts';
 import { fakeDelay } from './fakeDelay.ts';
@@ -37,31 +36,20 @@ export const mockAuthApi = {
   async loginCustomer(credentials: CustomerLoginCredentials): Promise<AuthUser> {
     await fakeDelay();
 
-    const rawInput = credentials.email.trim();
-    const normalizedInput = rawInput.toLowerCase();
+    const normalizedInput = credentials.email.trim().toLowerCase();
     const password = credentials.password.trim();
 
     // Map demo username shortcut 'customer' to default demo customer 'jane@example.com'
     const targetEmail = normalizedInput === 'customer' ? 'jane@example.com' : normalizedInput;
 
     const storedCreds = loadCustomerCredentials();
-    let match = storedCreds.find((c) => c.email.toLowerCase() === targetEmail);
-
-    // If target is default demo and not found in storage, fallback to default demo
-    if (!match && (targetEmail === 'jane@example.com' || normalizedInput === 'customer')) {
-      match = {
-        email: 'jane@example.com',
-        passwordHashSimulated: 'customer123',
-        customerId: 'cust-101',
-        loanId: 'loan-101',
-      };
-    }
+    const match = storedCreds.find((c) => c.email.toLowerCase() === targetEmail);
 
     if (match && match.passwordHashSimulated.trim() === password) {
       // Find customer details from loans
       const loans = loadPrototypeLoans();
       const customerLoan = loans.find(
-        (l) => l.customer.email.toLowerCase() === match!.email.toLowerCase()
+        (l) => l.customer.email.toLowerCase() === match.email.toLowerCase()
       );
       const name = customerLoan?.customer.name || 'Customer';
 
@@ -82,11 +70,6 @@ export const mockAuthApi = {
     }
 
     throw new Error('Invalid email or password.');
-  },
-
-  async getCurrentSession(): Promise<AuthSession | null> {
-    await fakeDelay(100);
-    return loadPrototypeSession();
   },
 
   async logout(): Promise<void> {

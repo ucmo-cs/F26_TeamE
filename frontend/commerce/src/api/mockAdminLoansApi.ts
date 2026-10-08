@@ -32,7 +32,7 @@ export const mockAdminLoansApi = {
     await fakeDelay();
     const loans = loadPrototypeLoans();
     const found = loans.find((l) => l.id === loanId);
-    return found ? JSON.parse(JSON.stringify(found)) : null;
+    return found ?? null;
   },
 
   /**
@@ -70,7 +70,7 @@ export const mockAdminLoansApi = {
       loanId: newLoanId,
     });
 
-    return JSON.parse(JSON.stringify(newLoan));
+    return newLoan;
   },
 
   /**
@@ -91,14 +91,11 @@ export const mockAdminLoansApi = {
       // Protect remaining balance from direct edit per spec
       remainingBalance: current.remainingBalance,
       customer: updates.customer ? { ...current.customer, ...updates.customer } : current.customer,
-      bankAccount: updates.bankAccount !== undefined ? updates.bankAccount : current.bankAccount,
-      paymentSchedule:
-        updates.paymentSchedule !== undefined ? updates.paymentSchedule : current.paymentSchedule,
     };
 
     loans[index] = updated;
     savePrototypeLoans(loans);
 
-    return JSON.parse(JSON.stringify(updated));
+    return updated;
   },
 };

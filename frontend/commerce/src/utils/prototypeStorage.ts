@@ -44,16 +44,16 @@ export function loadPrototypeLoans(): Loan[] {
     if (!raw) {
       // First run: save and return initial mock dataset
       savePrototypeLoans(INITIAL_MOCK_LOANS);
-      return INITIAL_MOCK_LOANS;
+      return structuredClone(INITIAL_MOCK_LOANS);
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
+    if (Array.isArray(parsed)) {
       return parsed as Loan[];
     }
   } catch (err) {
     console.error('Failed to load prototype loans from localStorage:', err);
   }
-  return INITIAL_MOCK_LOANS;
+  return structuredClone(INITIAL_MOCK_LOANS);
 }
 
 export function savePrototypeLoans(loans: Loan[]): void {
@@ -96,12 +96,13 @@ export function loadCustomerCredentials(): StoredCustomerCredential[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.CUSTOMER_CREDENTIALS);
     if (!raw) {
-      credentials = [...DEFAULT_CUSTOMER_CREDENTIALS];
+      credentials = structuredClone(DEFAULT_CUSTOMER_CREDENTIALS);
     } else {
-      credentials = JSON.parse(raw) as StoredCustomerCredential[];
+      const parsed: unknown = JSON.parse(raw);
+      credentials = Array.isArray(parsed) ? parsed : structuredClone(DEFAULT_CUSTOMER_CREDENTIALS);
     }
   } catch {
-    credentials = [...DEFAULT_CUSTOMER_CREDENTIALS];
+    credentials = structuredClone(DEFAULT_CUSTOMER_CREDENTIALS);
   }
 
   // Ensure all existing loans in prototype storage have corresponding login credentials

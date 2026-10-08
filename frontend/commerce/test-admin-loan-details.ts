@@ -199,7 +199,6 @@ async function runAdminLoanDetailsTests() {
     console.log('✓ Loan without bank account / schedule displays empty messages accurately');
 
     console.log('=== ALL ADMIN LOAN DETAILS TESTS PASSED! ===');
-    process.exit(0);
   } finally {
     await browser.close();
   }

@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { mockAdminLoansApi } from '../../api/mockAdminLoansApi.ts';
 import type { BankAccount, BankAccountType, DayOfWeek, Loan, PaymentFrequency, PaymentSchedule } from '../../types/loan.ts';
+import { DAYS_OF_WEEK, formatFrequencyLabel, formatScheduleDay } from '../../utils/paymentSchedule.ts';
 import { Alert } from '../../components/ui/Alert.tsx';
 import { Button } from '../../components/ui/Button.tsx';
 import { Card } from '../../components/ui/Card.tsx';
@@ -26,16 +27,6 @@ import {
   calculateMonthlyMinimum,
   calculateScheduledMinimum,
 } from '../../utils/loanCalculations.ts';
-
-const DAYS_OF_WEEK: { label: string; value: DayOfWeek }[] = [
-  { label: 'Monday', value: 'MONDAY' },
-  { label: 'Tuesday', value: 'TUESDAY' },
-  { label: 'Wednesday', value: 'WEDNESDAY' },
-  { label: 'Thursday', value: 'THURSDAY' },
-  { label: 'Friday', value: 'FRIDAY' },
-  { label: 'Saturday', value: 'SATURDAY' },
-  { label: 'Sunday', value: 'SUNDAY' },
-];
 
 export const AdminLoanDetailsPage: React.FC = () => {
   const { loanId } = useParams<{ loanId: string }>();
@@ -761,11 +752,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
               <div>
                 <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Frequency</span>
                 <span className="text-sm font-medium text-[#172033]">
-                  {loan.paymentSchedule?.frequency === 'MONTHLY'
-                    ? 'Monthly'
-                    : loan.paymentSchedule?.frequency === 'BIWEEKLY'
-                    ? 'Bi-weekly'
-                    : 'Weekly'}
+                  {loan.paymentSchedule && formatFrequencyLabel(loan.paymentSchedule.frequency)}
                 </span>
               </div>
               <div>
@@ -777,17 +764,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
               <div>
                 <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Schedule Day</span>
                 <span className="text-sm font-medium text-[#172033]">
-                  {loan.paymentSchedule?.frequency === 'MONTHLY'
-                    ? `${loan.paymentSchedule?.dayOfMonth || 15}th of the month`
-                    : loan.paymentSchedule?.frequency === 'BIWEEKLY'
-                    ? `Every other ${
-                        DAYS_OF_WEEK.find((d) => d.value === loan.paymentSchedule?.dayOfWeek)?.label ||
-                        'Friday'
-                      }`
-                    : `Every ${
-                        DAYS_OF_WEEK.find((d) => d.value === loan.paymentSchedule?.dayOfWeek)?.label ||
-                        'Friday'
-                      }`}
+                  {loan.paymentSchedule && formatScheduleDay(loan.paymentSchedule)}
                 </span>
               </div>
               <div>

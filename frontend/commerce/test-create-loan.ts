@@ -173,7 +173,6 @@ async function runCreateLoanTests() {
     console.log('✓ Generated customer credentials successfully logged into Customer Portal and load new loan!');
 
     console.log('=== ALL CREATE NEW LOAN TESTS PASSED! ===');
-    process.exit(0);
   } finally {
     await browser.close();
   }

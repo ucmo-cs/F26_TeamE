@@ -12,23 +12,20 @@ export function cn(...inputs: ClassValue[]): string {
  * Currency: $12,345.67
  * Always dollar sign, comma thousands separator, exactly two decimals
  */
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+
 export function formatCurrency(amount: number): string {
-  if (isNaN(amount) || amount === null || amount === undefined) {
-    return '$0.00';
-  }
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
+  return currencyFormatter.format(Number.isFinite(amount) ? amount : 0);
 }
 
 /**
  * Interest Rate: 6.25%
  */
 export function formatInterestRate(rate: number): string {
-  if (isNaN(rate) || rate === null || rate === undefined) {
+  if (!Number.isFinite(rate)) {
     return '0.00%';
   }
   return `${rate.toFixed(2)}%`;
@@ -120,12 +117,5 @@ export function maskAccountNumber(accountNumber: string): string {
  * Routing Number Masking: •••••2345
  */
 export function maskRoutingNumber(routingNumber: string): string {
-  if (!routingNumber) return '••••';
-  const clean = routingNumber.trim();
-  if (clean.length <= 4) {
-    return clean;
-  }
-  const lastFour = clean.slice(-4);
-  const maskedPortion = '•'.repeat(Math.max(4, clean.length - 4));
-  return `${maskedPortion}${lastFour}`;
+  return maskAccountNumber(routingNumber);
 }

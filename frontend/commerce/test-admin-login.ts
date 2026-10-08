@@ -137,7 +137,6 @@ async function runAdminLoginTests() {
     console.log('✓ Logout successfully clears session and returns to /admin/login');
 
     console.log('=== ALL ADMIN LOGIN TESTS PASSED! ===');
-    process.exit(0);
   } finally {
     if (browser) await browser.close();
     if (viteProc) {

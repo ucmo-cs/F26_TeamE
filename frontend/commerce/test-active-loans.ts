@@ -221,7 +221,6 @@ async function runActiveLoansTests() {
     console.log('✓ New Loan primary action routes to /admin/loans/new');
 
     console.log('=== ALL ACTIVE LOANS TESTS PASSED! ===');
-    process.exit(0);
   } finally {
     await browser.close();
   }

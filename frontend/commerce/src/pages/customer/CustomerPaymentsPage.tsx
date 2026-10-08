@@ -4,6 +4,7 @@ import { useAuth } from '../../context/useAuth.ts';
 import { mockCustomerApi } from '../../api/mockCustomerApi.ts';
 import { mockPaymentApi } from '../../api/mockPaymentApi.ts';
 import type { DayOfWeek, Loan, PaymentFrequency, PaymentSchedule } from '../../types/loan.ts';
+import { DAYS_OF_WEEK, PAYMENT_FREQUENCIES, formatFrequencyLabel, formatScheduleDay } from '../../utils/paymentSchedule.ts';
 import { Card } from '../../components/ui/Card.tsx';
 import { Button } from '../../components/ui/Button.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
@@ -23,16 +24,6 @@ import {
   calculateEstimatedPayoffDate,
 } from '../../utils/loanCalculations.ts';
 import { Calendar, CheckCircle2, AlertCircle } from 'lucide-react';
-
-const DAYS_OF_WEEK: { label: string; value: DayOfWeek }[] = [
-  { label: 'Monday', value: 'MONDAY' },
-  { label: 'Tuesday', value: 'TUESDAY' },
-  { label: 'Wednesday', value: 'WEDNESDAY' },
-  { label: 'Thursday', value: 'THURSDAY' },
-  { label: 'Friday', value: 'FRIDAY' },
-  { label: 'Saturday', value: 'SATURDAY' },
-  { label: 'Sunday', value: 'SUNDAY' },
-];
 
 const DAYS_OF_MONTH = Array.from({ length: 28 }, (_, i) => i + 1);
 
@@ -225,29 +216,6 @@ export const CustomerPaymentsPage: React.FC = () => {
     }
   };
 
-  const formatScheduleDayText = (schedule: PaymentSchedule) => {
-    if (schedule.frequency === 'MONTHLY') {
-      const d = schedule.dayOfMonth || 15;
-      const suffix =
-        d === 1 || d === 21 ? 'st' : d === 2 || d === 22 ? 'nd' : d === 3 || d === 23 ? 'rd' : 'th';
-      return `${d}${suffix} of each month`;
-    }
-    const day = schedule.dayOfWeek || 'FRIDAY';
-    const dayName = day.charAt(0) + day.slice(1).toLowerCase();
-    return schedule.frequency === 'BIWEEKLY' ? `Every other ${dayName}` : `Every ${dayName}`;
-  };
-
-  const formatFrequencyLabel = (freq: PaymentFrequency) => {
-    switch (freq) {
-      case 'MONTHLY':
-        return 'Monthly';
-      case 'BIWEEKLY':
-        return 'Bi-weekly';
-      case 'WEEKLY':
-        return 'Weekly';
-    }
-  };
-
   return (
     <div>
       <PageHeader
@@ -332,7 +300,7 @@ export const CustomerPaymentsPage: React.FC = () => {
                 <div>
                   <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Schedule</span>
                   <span className="text-base font-medium text-[#172033]" id="current-schedule">
-                    {formatScheduleDayText(loan.paymentSchedule)}
+                    {formatScheduleDay(loan.paymentSchedule)}
                   </span>
                 </div>
 
@@ -385,77 +353,31 @@ export const CustomerPaymentsPage: React.FC = () => {
                   Step 1 — Payment Frequency
                 </label>
                 <div className="grid grid-cols-3 gap-4">
-                  {/* Monthly Option */}
-                  <div
-                    onClick={() => handleFrequencyChange('MONTHLY')}
-                    id="freq-monthly"
-                    className={cn(
-                      'p-4 rounded-[6px] border cursor-pointer transition-colors',
-                      frequency === 'MONTHLY'
-                        ? 'border-[#12345B] bg-[#EAF1F8] ring-1 ring-[#12345B]'
-                        : 'border-[#D7DEE7] bg-white hover:border-[#BBC6D3]'
-                    )}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-sm text-[#172033]">Monthly</span>
-                      <input
-                        type="radio"
-                        name="frequency"
-                        checked={frequency === 'MONTHLY'}
-                        onChange={() => handleFrequencyChange('MONTHLY')}
-                        className="text-[#12345B] focus:ring-[#12345B]"
-                      />
-                    </div>
-                    <span className="text-xs text-[#5E6B7A]">12 payments per year</span>
-                  </div>
-
-                  {/* Bi-weekly Option */}
-                  <div
-                    onClick={() => handleFrequencyChange('BIWEEKLY')}
-                    id="freq-biweekly"
-                    className={cn(
-                      'p-4 rounded-[6px] border cursor-pointer transition-colors',
-                      frequency === 'BIWEEKLY'
-                        ? 'border-[#12345B] bg-[#EAF1F8] ring-1 ring-[#12345B]'
-                        : 'border-[#D7DEE7] bg-white hover:border-[#BBC6D3]'
-                    )}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-sm text-[#172033]">Bi-weekly</span>
-                      <input
-                        type="radio"
-                        name="frequency"
-                        checked={frequency === 'BIWEEKLY'}
-                        onChange={() => handleFrequencyChange('BIWEEKLY')}
-                        className="text-[#12345B] focus:ring-[#12345B]"
-                      />
-                    </div>
-                    <span className="text-xs text-[#5E6B7A]">26 payments per year</span>
-                  </div>
-
-                  {/* Weekly Option */}
-                  <div
-                    onClick={() => handleFrequencyChange('WEEKLY')}
-                    id="freq-weekly"
-                    className={cn(
-                      'p-4 rounded-[6px] border cursor-pointer transition-colors',
-                      frequency === 'WEEKLY'
-                        ? 'border-[#12345B] bg-[#EAF1F8] ring-1 ring-[#12345B]'
-                        : 'border-[#D7DEE7] bg-white hover:border-[#BBC6D3]'
-                    )}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-sm text-[#172033]">Weekly</span>
-                      <input
-                        type="radio"
-                        name="frequency"
-                        checked={frequency === 'WEEKLY'}
-                        onChange={() => handleFrequencyChange('WEEKLY')}
-                        className="text-[#12345B] focus:ring-[#12345B]"
-                      />
-                    </div>
-                    <span className="text-xs text-[#5E6B7A]">52 payments per year</span>
-                  </div>
+                  {PAYMENT_FREQUENCIES.map(({ value, label, periods }) => (
+                    <label
+                      key={value}
+                      id={`freq-${value.toLowerCase()}`}
+                      className={cn(
+                        'block p-4 rounded-[6px] border cursor-pointer transition-colors',
+                        frequency === value
+                          ? 'border-[#12345B] bg-[#EAF1F8] ring-1 ring-[#12345B]'
+                          : 'border-[#D7DEE7] bg-white hover:border-[#BBC6D3]'
+                      )}
+                    >
+                      <span className="flex items-center justify-between mb-1">
+                        <span className="font-semibold text-sm text-[#172033]">{label}</span>
+                        <input
+                          type="radio"
+                          name="frequency"
+                          value={value}
+                          checked={frequency === value}
+                          onChange={() => handleFrequencyChange(value)}
+                          className="text-[#12345B] focus:ring-[#12345B]"
+                        />
+                      </span>
+                      <span className="text-xs text-[#5E6B7A]">{periods} payments per year</span>
+                    </label>
+                  ))}
                 </div>
               </div>
 

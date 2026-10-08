@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth.ts';
 import { mockCustomerApi } from '../../api/mockCustomerApi.ts';
 import type { Loan } from '../../types/loan.ts';
+import { formatFrequencyLabel, formatScheduleDay } from '../../utils/paymentSchedule.ts';
 import { Card } from '../../components/ui/Card.tsx';
 import { Button } from '../../components/ui/Button.tsx';
 import { CardSkeleton } from '../../components/ui/Skeleton.tsx';
@@ -60,38 +61,6 @@ export const CustomerLoanPage: React.FC = () => {
           loan.paymentSchedule.frequency
         )
       : null;
-
-  const formatScheduleDay = (schedule: Loan['paymentSchedule']) => {
-    if (!schedule) return 'N/A';
-    if (schedule.frequency === 'MONTHLY') {
-      const day = schedule.dayOfMonth || 15;
-      const suffix =
-        day === 1 || day === 21
-          ? 'st'
-          : day === 2 || day === 22
-          ? 'nd'
-          : day === 3 || day === 23
-          ? 'rd'
-          : 'th';
-      return `${day}${suffix} of each month`;
-    }
-    const day = schedule.dayOfWeek || 'FRIDAY';
-    const capitalized = day.charAt(0) + day.slice(1).toLowerCase();
-    return schedule.frequency === 'BIWEEKLY' ? `Every other ${capitalized}` : `Every ${capitalized}`;
-  };
-
-  const formatFrequencyLabel = (freq?: string) => {
-    switch (freq) {
-      case 'MONTHLY':
-        return 'Monthly';
-      case 'BIWEEKLY':
-        return 'Bi-weekly';
-      case 'WEEKLY':
-        return 'Weekly';
-      default:
-        return 'N/A';
-    }
-  };
 
   return (
     <div>

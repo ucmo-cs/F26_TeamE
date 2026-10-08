@@ -20,7 +20,12 @@ import {
   loadPrototypeLoans,
   resetPrototypeState,
   loadPrototypeSession,
+  loadCustomerCredentials,
+  savePrototypeLoans,
+  updateCustomerCredentialEmail,
 } from './src/utils/prototypeStorage.ts';
+import { INITIAL_MOCK_LOANS } from './src/data/mockData.ts';
+import { formatFrequencyLabel, formatScheduleDay } from './src/utils/paymentSchedule.ts';
 import { mockAuthApi } from './src/api/mockAuthApi.ts';
 import { mockAdminLoansApi } from './src/api/mockAdminLoansApi.ts';
 import { mockCustomerApi } from './src/api/mockCustomerApi.ts';
@@ -53,6 +58,12 @@ async function runTests() {
   console.log('1. Testing formatting utilities...');
   assert.strictEqual(formatCurrency(12345.67), '$12,345.67');
   assert.strictEqual(formatCurrency(0), '$0.00');
+  assert.strictEqual(formatCurrency(Infinity), '$0.00');
+  assert.strictEqual(formatInterestRate(NaN), '0.00%');
+  assert.strictEqual(formatFrequencyLabel('BIWEEKLY'), 'Bi-weekly');
+  assert.strictEqual(formatScheduleDay({ frequency: 'MONTHLY', dayOfMonth: 21, paymentAmount: 100 }), '21st of each month');
+  assert.strictEqual(formatScheduleDay({ frequency: 'MONTHLY', dayOfMonth: 11, paymentAmount: 100 }), '11th of each month');
+  assert.strictEqual(formatScheduleDay({ frequency: 'WEEKLY', dayOfWeek: 'MONDAY', paymentAmount: 100 }), 'Every Monday');
   assert.strictEqual(formatInterestRate(6.25), '6.25%');
   assert.strictEqual(formatTableDate('2026-08-14'), '08/14/2026');
   assert.strictEqual(formatProminentDate('2026-08-14'), 'August 14, 2026');
@@ -83,6 +94,20 @@ async function runTests() {
   // Test 3: Prototype Storage & Initial Mock Data
   console.log('3. Testing prototype storage...');
   resetPrototypeState();
+  localStorage.removeItem('commerce_bank_loans');
+  const firstLoad = loadPrototypeLoans();
+  firstLoad[0].customer.name = 'Changed in memory';
+  assert.strictEqual(INITIAL_MOCK_LOANS[0].customer.name, 'Jane Smith', 'First read must not mutate seed data');
+  savePrototypeLoans([]);
+  assert.deepStrictEqual(loadPrototypeLoans(), [], 'An empty stored loan list must stay empty');
+  localStorage.setItem('commerce_bank_loans', '{invalid');
+  const fallbackLoans = loadPrototypeLoans();
+  fallbackLoans[0].customer.name = 'Changed fallback';
+  assert.strictEqual(INITIAL_MOCK_LOANS[0].customer.name, 'Jane Smith', 'Fallback must not mutate seed data');
+  localStorage.removeItem('commerce_bank_customer_credentials');
+  updateCustomerCredentialEmail('cust-101', 'jane@example.com', 'changed@example.com');
+  resetPrototypeState();
+  assert.strictEqual(loadCustomerCredentials()[0].email, 'jane@example.com', 'Reset must restore original credentials');
   const initialLoans = loadPrototypeLoans();
   assert.strictEqual(initialLoans.length, 4, 'Should seed 4 initial loans');
   assert.strictEqual(initialLoans.filter((l) => l.remainingBalance > 0).length, 3, 'Should have 3 active loans');
@@ -182,6 +207,11 @@ async function runTests() {
     nextPaymentDate: '2026-10-12',
   });
   assert.strictEqual(schedule.frequency, 'WEEKLY');
+  await mockAdminLoansApi.updateLoan(custLoan!.id, { paymentSchedule: undefined });
+  assert.strictEqual((await mockAdminLoansApi.getLoanById(custLoan!.id))?.paymentSchedule, undefined, 'Disabling a schedule must persist');
+  const detachedLoan = await mockAdminLoansApi.getLoanById(custLoan!.id);
+  detachedLoan!.customer.name = 'Unsaved change';
+  assert.strictEqual((await mockAdminLoansApi.getLoanById(custLoan!.id))?.customer.name, 'Jane Smith', 'API reads must be detached from saved data');
   console.log('✓ Mock customer & payment API passed.');
 
   // Test 7: Reset Demo Data

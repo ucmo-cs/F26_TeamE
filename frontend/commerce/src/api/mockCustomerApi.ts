@@ -28,7 +28,7 @@ export const mockCustomerApi = {
       found = loans[0];
     }
 
-    return found ? JSON.parse(JSON.stringify(found)) : null;
+    return found ?? null;
   },
 
   /**
@@ -117,6 +117,6 @@ export const mockCustomerApi = {
     }
 
     savePrototypeLoans(loans);
-    return JSON.parse(JSON.stringify(bankAccount));
+    return { ...bankAccount };
   },
 };
