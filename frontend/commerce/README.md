@@ -15,6 +15,21 @@ npm run dev
 
 Open the URL printed by Vite. Demo credentials are available on each login page.
 
+## Languages
+
+Use the **Language / Idioma** selector on either login page or in the signed-in header
+to switch between English and Spanish. The browser remembers the choice. New visitors
+with a Spanish browser language start in Spanish; other visitors start in English.
+Switching languages preserves form edits, login sessions, and loan data. Dates and
+payment schedule labels follow the selected language; monetary amounts remain in USD.
+
+Spanish translations live in `src/i18n/es.json`. Components use `useLanguage()` and
+`t('English message', { parameter: value })`. Keep messages stored in form state in
+English; shared alerts and validation fields translate them when displayed.
+
+Run `npm run test:language` with the website running at `http://localhost:5173`.
+Override `TEST_BASE_URL` or `CHROME_PATH` for another server or Chrome installation.
+
 ## Checks
 
 ```sh

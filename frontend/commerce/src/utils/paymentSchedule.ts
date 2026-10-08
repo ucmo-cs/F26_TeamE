@@ -1,4 +1,5 @@
 import type { DayOfWeek, PaymentFrequency, PaymentSchedule } from '../types/loan.ts';
+import { getLanguage, translate as t } from '../i18n/language.ts';
 
 export const DAYS_OF_WEEK: { label: string; value: DayOfWeek }[] = [
   { label: 'Monday', value: 'MONDAY' },
@@ -17,17 +18,21 @@ export const PAYMENT_FREQUENCIES: { value: PaymentFrequency; label: string; peri
 ];
 
 export function formatFrequencyLabel(frequency: PaymentFrequency): string {
-  return PAYMENT_FREQUENCIES.find((option) => option.value === frequency)?.label ?? 'N/A';
+  return t(PAYMENT_FREQUENCIES.find((option) => option.value === frequency)?.label ?? 'N/A');
+}
+
+export function formatMonthDay(day: number): string {
+  if (getLanguage() === 'es') return t('{day} of each month', { day });
+  const suffix = day === 1 || day === 21 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th';
+  return `${day}${suffix} of each month`;
 }
 
 export function formatScheduleDay(schedule: PaymentSchedule): string {
   if (schedule.frequency === 'MONTHLY') {
     const day = schedule.dayOfMonth || 15;
-    const suffix =
-      day === 1 || day === 21 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th';
-    return `${day}${suffix} of each month`;
+    return formatMonthDay(day);
   }
   const day = schedule.dayOfWeek || 'FRIDAY';
   const name = day.charAt(0) + day.slice(1).toLowerCase();
-  return schedule.frequency === 'BIWEEKLY' ? `Every other ${name}` : `Every ${name}`;
+  return t(schedule.frequency === 'BIWEEKLY' ? 'Every other {day}' : 'Every {day}', { day: t(name) });
 }

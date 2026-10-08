@@ -1,3 +1,4 @@
+import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth.ts';
@@ -7,8 +8,10 @@ import { Card } from '../../components/ui/Card.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
 import { TextInput } from '../../components/ui/TextInput.tsx';
 import { DEMO_CUSTOMER_CREDENTIALS } from '../../data/mockData.ts';
+import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher.tsx';
 
 export const CustomerLoginPage: React.FC = () => {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -43,11 +46,12 @@ export const CustomerLoginPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-[#F5F7FA] flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-[420px] -mt-12">
+        <div className="flex justify-end mb-4"><LanguageSwitcher /></div>
         <div className="text-center mb-6">
           <h1 className="text-2xl font-semibold text-[#172033] tracking-tight">
             FivePoint Bank
           </h1>
-          <p className="text-sm text-[#5E6B7A] mt-1">Customer Account Portal</p>
+          <p className="text-sm text-[#5E6B7A] mt-1">{t("Customer Account Portal")}</p>
         </div>
 
         <Card className="p-8 shadow-[0_1px_2px_rgba(16,24,40,0.04)] border-[#D7DEE7]">
@@ -58,7 +62,7 @@ export const CustomerLoginPage: React.FC = () => {
               </Alert>
             )}
 
-            <FormField label="Email Address" id="customer-email" required>
+            <FormField label={t("Email Address")} id="customer-email" required>
               <TextInput
                 id="customer-email"
                 type="email"
@@ -70,13 +74,13 @@ export const CustomerLoginPage: React.FC = () => {
               />
             </FormField>
 
-            <FormField label="Password" id="customer-password" required>
+            <FormField label={t("Password")} id="customer-password" required>
               <TextInput
                 id="customer-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
+                placeholder={t("Enter password")}
                 autoComplete="current-password"
                 required
               />
@@ -87,9 +91,9 @@ export const CustomerLoginPage: React.FC = () => {
               variant="primary"
               className="w-full mt-2"
               isLoading={isLoading}
-              loadingText="Logging in..."
+              loadingText={t("Logging in...")}
             >
-              Log In
+              {t("Log In")}
             </Button>
           </form>
 
@@ -110,17 +114,17 @@ export const CustomerLoginPage: React.FC = () => {
                 setError(null);
               }
             }}
-            title="Click to fill demo credentials"
+            title={t("Click to fill demo credentials")}
             className="mt-6 p-3.5 bg-[#EAF1F8] border border-[#BBC6D3]/50 rounded-[6px] text-xs text-[#172033] cursor-pointer hover:bg-[#dfeaf4] transition-colors focus:outline-none focus:ring-2 focus:ring-[#12345B]"
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="font-semibold text-[#12345B]">Demo credentials</span>
-              <span className="text-[10px] text-[#5E6B7A] font-normal underline hover:text-[#12345B]">Auto-fill</span>
+              <span className="font-semibold text-[#12345B]">{t("Demo credentials")}</span>
+              <span className="text-[10px] text-[#5E6B7A] font-normal underline hover:text-[#12345B]">{t("Auto-fill")}</span>
             </div>
             <div className="text-[#5E6B7A] font-mono leading-relaxed">
-              Email: <span className="text-[#172033] font-medium">{DEMO_CUSTOMER_CREDENTIALS.email}</span>
+              {t("Email:")} <span className="text-[#172033] font-medium">{DEMO_CUSTOMER_CREDENTIALS.email}</span>
               <br />
-              Password: <span className="text-[#172033] font-medium">{DEMO_CUSTOMER_CREDENTIALS.password}</span>
+              {t("Password:")} <span className="text-[#172033] font-medium">{DEMO_CUSTOMER_CREDENTIALS.password}</span>
             </div>
           </div>
         </Card>
@@ -131,7 +135,7 @@ export const CustomerLoginPage: React.FC = () => {
             onClick={() => navigate('/admin/login')}
             className="text-xs text-[#5E6B7A] hover:text-[#12345B] cursor-pointer"
           >
-            Go to Admin Login →
+            {t("Go to Admin Login →")}
           </button>
         </div>
       </div>

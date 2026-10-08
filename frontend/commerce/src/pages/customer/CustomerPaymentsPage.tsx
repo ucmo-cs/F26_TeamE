@@ -1,10 +1,11 @@
+import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth.ts';
 import { mockCustomerApi } from '../../api/mockCustomerApi.ts';
 import { mockPaymentApi } from '../../api/mockPaymentApi.ts';
 import type { DayOfWeek, Loan, PaymentFrequency, PaymentSchedule } from '../../types/loan.ts';
-import { DAYS_OF_WEEK, PAYMENT_FREQUENCIES, formatFrequencyLabel, formatScheduleDay } from '../../utils/paymentSchedule.ts';
+import { DAYS_OF_WEEK, PAYMENT_FREQUENCIES, formatFrequencyLabel, formatScheduleDay, formatMonthDay } from '../../utils/paymentSchedule.ts';
 import { Card } from '../../components/ui/Card.tsx';
 import { Button } from '../../components/ui/Button.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
@@ -59,6 +60,7 @@ function computeNextPaymentDate(
 }
 
 export const CustomerPaymentsPage: React.FC = () => {
+  const { t } = useLanguage();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -219,8 +221,8 @@ export const CustomerPaymentsPage: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title="Automatic Payments"
-        description="Choose how often you want to make automatic loan payments."
+        title={t("Automatic Payments")}
+        description={t("Choose how often you want to make automatic loan payments.")}
       />
 
       {/* Bank Account Requirement Warning */}
@@ -230,9 +232,9 @@ export const CustomerPaymentsPage: React.FC = () => {
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-[#A45B08] shrink-0 mt-0.5" />
               <div>
-                <h5 className="font-semibold text-inherit text-sm">Bank account required</h5>
+                <h5 className="font-semibold text-inherit text-sm">{t("Bank account required")}</h5>
                 <p className="text-xs text-inherit mt-0.5">
-                  Add a bank account before scheduling automatic payments.
+                  {t("Add a bank account before scheduling automatic payments.")}
                 </p>
               </div>
             </div>
@@ -242,7 +244,7 @@ export const CustomerPaymentsPage: React.FC = () => {
               onClick={() => navigate('/customer/profile')}
               className="shrink-0 text-xs"
             >
-              Go to Profile
+              {t("Go to Profile")}
             </Button>
           </div>
         </Alert>
@@ -273,9 +275,9 @@ export const CustomerPaymentsPage: React.FC = () => {
             <Card>
               <div className="flex items-center justify-between pb-3 border-b border-[#D7DEE7]/60 mb-5">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-semibold text-[#172033]">Current Schedule</h3>
+                  <h3 className="text-base font-semibold text-[#172033]">{t("Current Schedule")}</h3>
                   <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#197A55] bg-[#E9F6F0] px-2 py-0.5 rounded-[4px]">
-                    <CheckCircle2 className="h-3 w-3" /> Active
+                    <CheckCircle2 className="h-3 w-3" /> {t("Active")}
                   </span>
                 </div>
               </div>
@@ -283,7 +285,7 @@ export const CustomerPaymentsPage: React.FC = () => {
               <div className="grid grid-cols-3 gap-6">
                 <div>
                   <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                    Payment Amount
+                    {t("Payment Amount")}
                   </span>
                   <span className="text-base font-semibold text-[#172033] tabular-nums" id="current-payment-amount">
                     {formatCurrency(loan.paymentSchedule.paymentAmount)}
@@ -291,14 +293,14 @@ export const CustomerPaymentsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Frequency</span>
+                  <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Frequency")}</span>
                   <span className="text-base font-medium text-[#172033]" id="current-frequency">
                     {formatFrequencyLabel(loan.paymentSchedule.frequency)}
                   </span>
                 </div>
 
                 <div>
-                  <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">Schedule</span>
+                  <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">{t("Schedule")}</span>
                   <span className="text-base font-medium text-[#172033]" id="current-schedule">
                     {formatScheduleDay(loan.paymentSchedule)}
                   </span>
@@ -306,7 +308,7 @@ export const CustomerPaymentsPage: React.FC = () => {
 
                 <div>
                   <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                    Minimum Required Payment
+                    {t("Minimum Required Payment")}
                   </span>
                   <span className="text-base font-semibold text-[#172033] tabular-nums">
                     {formatCurrency(currentScheduleMin)}
@@ -315,23 +317,23 @@ export const CustomerPaymentsPage: React.FC = () => {
 
                 <div>
                   <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                    Next Payment Date
+                    {t("Next Payment Date")}
                   </span>
                   <span className="text-base font-medium text-[#172033]" id="current-next-date">
                     {loan.paymentSchedule.nextPaymentDate
                       ? formatProminentDate(loan.paymentSchedule.nextPaymentDate)
-                      : 'N/A'}
+                      : t("N/A")}
                   </span>
                 </div>
 
                 <div>
                   <span className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                    Estimated Payoff Date
+                    {t("Estimated Payoff Date")}
                   </span>
                   <span className="text-base font-semibold text-[#172033]" id="current-payoff-date">
                     {currentSchedulePayoff
                       ? formatMonthYear(currentSchedulePayoff.estimatedPayoffDate)
-                      : 'N/A'}
+                      : t("N/A")}
                   </span>
                 </div>
               </div>
@@ -342,7 +344,7 @@ export const CustomerPaymentsPage: React.FC = () => {
           <Card>
             <div className="pb-3 border-b border-[#D7DEE7]/60 mb-5">
               <h3 className="text-base font-semibold text-[#172033]">
-                {loan.paymentSchedule ? 'Edit Payment Schedule' : 'Schedule Automatic Payments'}
+                {loan.paymentSchedule ? t("Edit Payment Schedule") : t("Schedule Automatic Payments")}
               </h3>
             </div>
 
@@ -350,7 +352,7 @@ export const CustomerPaymentsPage: React.FC = () => {
               {/* Step 1: Frequency Selection (Cards per Style Spec Section 43) */}
               <div>
                 <label className="text-xs font-semibold text-[#5E6B7A] block mb-2">
-                  Step 1 — Payment Frequency
+                  {t("Step 1 — Payment Frequency")}
                 </label>
                 <div className="grid grid-cols-3 gap-4">
                   {PAYMENT_FREQUENCIES.map(({ value, label, periods }) => (
@@ -365,7 +367,7 @@ export const CustomerPaymentsPage: React.FC = () => {
                       )}
                     >
                       <span className="flex items-center justify-between mb-1">
-                        <span className="font-semibold text-sm text-[#172033]">{label}</span>
+                        <span className="font-semibold text-sm text-[#172033]">{t(label)}</span>
                         <input
                           type="radio"
                           name="frequency"
@@ -375,7 +377,7 @@ export const CustomerPaymentsPage: React.FC = () => {
                           className="text-[#12345B] focus:ring-[#12345B]"
                         />
                       </span>
-                      <span className="text-xs text-[#5E6B7A]">{periods} payments per year</span>
+                      <span className="text-xs text-[#5E6B7A]">{t('{count} payments per year', { count: periods })}</span>
                     </label>
                   ))}
                 </div>
@@ -385,10 +387,10 @@ export const CustomerPaymentsPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="text-xs font-semibold text-[#5E6B7A] block mb-1">
-                    Step 2 — Schedule Day
+                    {t("Step 2 — Schedule Day")}
                   </label>
                   {frequency === 'MONTHLY' ? (
-                    <FormField id="schedule-day-of-month" hint="Allowed days: 1–28 of each month">
+                    <FormField id="schedule-day-of-month" hint={t("Allowed days: 1–28 of each month")}>
                       <Select
                         id="schedule-day-of-month"
                         value={dayOfMonth}
@@ -399,21 +401,13 @@ export const CustomerPaymentsPage: React.FC = () => {
                       >
                         {DAYS_OF_MONTH.map((d) => (
                           <option key={d} value={d}>
-                            {d}
-                            {d === 1 || d === 21
-                              ? 'st'
-                              : d === 2 || d === 22
-                              ? 'nd'
-                              : d === 3 || d === 23
-                              ? 'rd'
-                              : 'th'}{' '}
-                            of each month
+                            {formatMonthDay(d)}
                           </option>
                         ))}
                       </Select>
                     </FormField>
                   ) : (
-                    <FormField id="schedule-day-of-week" hint="Day of week for automatic deduction">
+                    <FormField id="schedule-day-of-week" hint={t("Day of week for automatic deduction")}>
                       <Select
                         id="schedule-day-of-week"
                         value={dayOfWeek}
@@ -424,7 +418,7 @@ export const CustomerPaymentsPage: React.FC = () => {
                       >
                         {DAYS_OF_WEEK.map((d) => (
                           <option key={d.value} value={d.value}>
-                            {frequency === 'BIWEEKLY' ? `Every other ${d.label}` : `Every ${d.label}`}
+                            {formatScheduleDay({ frequency, dayOfWeek: d.value, paymentAmount: 0 })}
                           </option>
                         ))}
                       </Select>
@@ -436,10 +430,10 @@ export const CustomerPaymentsPage: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-xs font-semibold text-[#5E6B7A] block" htmlFor="payment-amount">
-                      Step 3 & 4 — Payment Amount
+                      {t("Step 3 & 4 — Payment Amount")}
                     </label>
                     <span className="text-xs text-[#5E6B7A]" id="minimum-payment-display">
-                      Minimum required payment:{' '}
+                      {t("Minimum required payment:")}{' '}
                       <span className="font-semibold text-[#172033] tabular-nums">
                         {formatCurrency(scheduledMinimum)}
                       </span>
@@ -473,28 +467,28 @@ export const CustomerPaymentsPage: React.FC = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <Calendar className="h-4 w-4 text-[#12345B]" />
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-[#5E6B7A]">
-                    Estimated Payment Plan
+                    {t("Estimated Payment Plan")}
                   </h4>
                 </div>
 
                 {isAmountValid && projectedPayoff ? (
                   <div className="grid grid-cols-3 gap-6 text-sm">
                     <div>
-                      <span className="text-xs text-[#5E6B7A] block">Payment</span>
+                      <span className="text-xs text-[#5E6B7A] block">{t("Payment")}</span>
                       <span className="font-semibold text-[#172033] tabular-nums" id="plan-payment">
                         {formatCurrency(paymentAmountNum)}
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-xs text-[#5E6B7A] block">Frequency</span>
+                      <span className="text-xs text-[#5E6B7A] block">{t("Frequency")}</span>
                       <span className="font-medium text-[#172033]" id="plan-frequency">
                         {formatFrequencyLabel(frequency)}
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-xs text-[#5E6B7A] block">Estimated Payoff</span>
+                      <span className="text-xs text-[#5E6B7A] block">{t("Estimated Payoff")}</span>
                       <span className="font-semibold text-[#172033]" id="plan-payoff">
                         {formatMonthYear(projectedPayoff.estimatedPayoffDate)}
                       </span>
@@ -502,8 +496,7 @@ export const CustomerPaymentsPage: React.FC = () => {
                   </div>
                 ) : (
                   <p className="text-xs text-[#5E6B7A]">
-                    Enter a payment amount equal to or greater than the minimum required (
-                    {formatCurrency(scheduledMinimum)}) to see your estimated payoff plan.
+                    {t('Enter a payment amount equal to or greater than the minimum required ({amount}) to see your estimated payoff plan.', { amount: formatCurrency(scheduledMinimum) })}
                   </p>
                 )}
               </div>
@@ -515,9 +508,9 @@ export const CustomerPaymentsPage: React.FC = () => {
                   variant="primary"
                   disabled={!loan.bankAccount || !isAmountValid || isSubmitting}
                   isLoading={isSubmitting}
-                  loadingText="Saving Schedule..."
+                  loadingText={t("Saving Schedule...")}
                 >
-                  Save Schedule
+                  {t("Save Schedule")}
                 </Button>
               </div>
             </form>
@@ -525,7 +518,7 @@ export const CustomerPaymentsPage: React.FC = () => {
         </div>
       ) : (
         <Card>
-          <p className="text-sm text-[#5E6B7A]">No active loan record found for your account.</p>
+          <p className="text-sm text-[#5E6B7A]">{t("No active loan record found for your account.")}</p>
         </Card>
       )}
     </div>

@@ -1,3 +1,4 @@
+import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowDown, ArrowUp, ArrowUpDown, Plus, Search } from 'lucide-react';
@@ -15,6 +16,7 @@ type SortField = 'customer' | 'loanDate' | 'remainingBalance' | 'originalAmount'
 type SortDirection = 'asc' | 'desc';
 
 export const AdminLoansPage: React.FC = () => {
+  const { t } = useLanguage();
   const [loans, setLoans] = useState<LoanSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -97,15 +99,15 @@ export const AdminLoansPage: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title="Active Loans"
-        description="Manage loans that have not been fully repaid."
+        title={t("Active Loans")}
+        description={t("Manage loans that have not been fully repaid.")}
         action={
           <Button
             variant="primary"
             icon={<Plus className="h-4 w-4" />}
             onClick={() => navigate('/admin/loans/new')}
           >
-            New Loan
+            {t("New Loan")}
           </Button>
         }
       />
@@ -113,11 +115,11 @@ export const AdminLoansPage: React.FC = () => {
       {/* Search Input: 320px width per spec Section 32 */}
       <div className="mb-4 w-[320px]">
         <TextInput
-          placeholder="Search by customer name"
+          placeholder={t("Search by customer name")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           prefixElement={<Search className="h-4 w-4 text-[#7B8794]" />}
-          aria-label="Search by customer name"
+          aria-label={t("Search by customer name")}
         />
       </div>
 
@@ -125,7 +127,7 @@ export const AdminLoansPage: React.FC = () => {
         <TableSkeleton rows={6} />
       ) : processedLoans.length === 0 ? (
         <EmptyState
-          message="No active loans were found."
+          message={t("No active loans were found.")}
           action={
             <Button
               variant="secondary"
@@ -137,7 +139,7 @@ export const AdminLoansPage: React.FC = () => {
                 }
               }}
             >
-              {searchTerm ? 'Clear Search' : 'Create New Loan'}
+              {searchTerm ? t("Clear Search") : t("Create New Loan")}
             </Button>
           }
         />
@@ -151,7 +153,7 @@ export const AdminLoansPage: React.FC = () => {
                   className="py-3 px-4 font-semibold cursor-pointer select-none group hover:text-[#172033]"
                 >
                   <div className="flex items-center gap-1.5">
-                    <span>Customer</span>
+                    <span>{t("Customer")}</span>
                     {renderSortIndicator('customer')}
                   </div>
                 </th>
@@ -160,7 +162,7 @@ export const AdminLoansPage: React.FC = () => {
                   className="py-3 px-4 font-semibold cursor-pointer select-none group hover:text-[#172033]"
                 >
                   <div className="flex items-center gap-1.5">
-                    <span>Loan Date</span>
+                    <span>{t("Loan Date")}</span>
                     {renderSortIndicator('loanDate')}
                   </div>
                 </th>
@@ -169,7 +171,7 @@ export const AdminLoansPage: React.FC = () => {
                   className="py-3 px-4 text-right font-semibold cursor-pointer select-none group hover:text-[#172033]"
                 >
                   <div className="flex items-center justify-end gap-1.5">
-                    <span>Amount Owed</span>
+                    <span>{t("Amount Owed")}</span>
                     {renderSortIndicator('remainingBalance')}
                   </div>
                 </th>
@@ -178,7 +180,7 @@ export const AdminLoansPage: React.FC = () => {
                   className="py-3 px-4 text-right font-semibold cursor-pointer select-none group hover:text-[#172033]"
                 >
                   <div className="flex items-center justify-end gap-1.5">
-                    <span>Original Amount</span>
+                    <span>{t("Original Amount")}</span>
                     {renderSortIndicator('originalAmount')}
                   </div>
                 </th>
@@ -187,11 +189,11 @@ export const AdminLoansPage: React.FC = () => {
                   className="py-3 px-4 text-right font-semibold cursor-pointer select-none group hover:text-[#172033]"
                 >
                   <div className="flex items-center justify-end gap-1.5">
-                    <span>Interest Rate</span>
+                    <span>{t("Interest Rate")}</span>
                     {renderSortIndicator('annualInterestRate')}
                   </div>
                 </th>
-                <th className="py-3 px-4 text-right font-semibold">Action</th>
+                <th className="py-3 px-4 text-right font-semibold">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#D7DEE7]">
@@ -223,7 +225,7 @@ export const AdminLoansPage: React.FC = () => {
                       }}
                       className="text-[#12345B] hover:text-[#0D2948] font-medium px-2.5 h-8"
                     >
-                      View
+                      {t("View")}
                     </Button>
                   </td>
                 </tr>

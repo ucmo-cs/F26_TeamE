@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { getLanguage, getLocale } from '../i18n/language.ts';
 
 /**
  * Combines Tailwind CSS classes with clsx and tailwind-merge
@@ -12,13 +13,13 @@ export function cn(...inputs: ClassValue[]): string {
  * Currency: $12,345.67
  * Always dollar sign, comma thousands separator, exactly two decimals
  */
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-});
+const currencyFormatters = {
+  en: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }),
+  es: new Intl.NumberFormat('es-US', { style: 'currency', currency: 'USD' }),
+};
 
 export function formatCurrency(amount: number): string {
-  return currencyFormatter.format(Number.isFinite(amount) ? amount : 0);
+  return currencyFormatters[getLanguage()].format(Number.isFinite(amount) ? amount : 0);
 }
 
 /**
@@ -39,14 +40,16 @@ export function formatTableDate(isoDate: string): string {
   const parts = isoDate.split('-');
   if (parts.length === 3) {
     const [year, month, day] = parts;
-    return `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+    return getLanguage() === 'es'
+      ? `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+      : `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
   }
   const date = new Date(isoDate);
   if (isNaN(date.getTime())) return isoDate;
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   const year = date.getFullYear();
-  return `${month}/${day}/${year}`;
+  return getLanguage() === 'es' ? `${day}/${month}/${year}` : `${month}/${day}/${year}`;
 }
 
 /**
@@ -60,7 +63,7 @@ export function formatProminentDate(isoDate: string): string {
     const month = parseInt(parts[1], 10) - 1;
     const day = parseInt(parts[2], 10);
     const date = new Date(year, month, day);
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat(getLocale(), {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
@@ -68,7 +71,7 @@ export function formatProminentDate(isoDate: string): string {
   }
   const date = new Date(isoDate);
   if (isNaN(date.getTime())) return isoDate;
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat(getLocale(), {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
@@ -85,14 +88,14 @@ export function formatMonthYear(isoDate: string): string {
     const year = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10) - 1;
     const date = new Date(year, month, 1);
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat(getLocale(), {
       month: 'long',
       year: 'numeric',
     }).format(date);
   }
   const date = new Date(isoDate);
   if (isNaN(date.getTime())) return isoDate;
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat(getLocale(), {
     month: 'long',
     year: 'numeric',
   }).format(date);

@@ -1,3 +1,4 @@
+import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
@@ -21,6 +22,7 @@ interface ValidationErrors {
 }
 
 export const CreateLoanPage: React.FC = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   // Form state
@@ -119,8 +121,8 @@ export const CreateLoanPage: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title="Create New Loan"
-        description="Create a new loan and generate a customer prototype account."
+        title={t("Create New Loan")}
+        description={t("Create a new loan and generate a customer prototype account.")}
         backAction={
           <button
             type="button"
@@ -128,13 +130,13 @@ export const CreateLoanPage: React.FC = () => {
             className="flex items-center text-xs font-medium text-[#5E6B7A] hover:text-[#12345B] cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4 mr-0.5" />
-            Back to Loans
+            {t("Back to Loans")}
           </button>
         }
       />
 
       <div className="mb-4 text-xs text-[#5E6B7A]">
-        <span className="text-[#B42318] font-semibold">*</span> Required fields
+        <span className="text-[#B42318] font-semibold">*</span> {t("Required fields")}
       </div>
 
       {generalError && (
@@ -147,12 +149,12 @@ export const CreateLoanPage: React.FC = () => {
         {/* SECTION A — Customer Information */}
         <Card className="border-[#D7DEE7]">
           <div className="pb-3 border-b border-[#D7DEE7]/60 mb-5">
-            <h3 className="text-base font-semibold text-[#172033]">Customer Information</h3>
+            <h3 className="text-base font-semibold text-[#172033]">{t("Customer Information")}</h3>
           </div>
 
           <div className="grid grid-cols-3 gap-6">
             <FormField
-              label="Customer Name"
+              label={t("Customer Name")}
               id="new-customer-name"
               required
               error={errors.customerName}
@@ -170,7 +172,7 @@ export const CreateLoanPage: React.FC = () => {
             </FormField>
 
             <FormField
-              label="Email Address"
+              label={t("Email Address")}
               id="new-customer-email"
               required
               error={errors.customerEmail}
@@ -189,7 +191,7 @@ export const CreateLoanPage: React.FC = () => {
             </FormField>
 
             <FormField
-              label="Phone Number"
+              label={t("Phone Number")}
               id="new-customer-phone"
               required
               error={errors.customerPhone}
@@ -212,11 +214,11 @@ export const CreateLoanPage: React.FC = () => {
         {/* SECTION B — Loan Information */}
         <Card className="border-[#D7DEE7]">
           <div className="pb-3 border-b border-[#D7DEE7]/60 mb-5">
-            <h3 className="text-base font-semibold text-[#172033]">Loan Information</h3>
+            <h3 className="text-base font-semibold text-[#172033]">{t("Loan Information")}</h3>
           </div>
 
           <div className="grid grid-cols-3 gap-6">
-            <FormField label="Loan Date" id="new-loan-date" required error={errors.loanDate}>
+            <FormField label={t("Loan Date")} id="new-loan-date" required error={errors.loanDate}>
               <TextInput
                 id="new-loan-date"
                 type="date"
@@ -230,7 +232,7 @@ export const CreateLoanPage: React.FC = () => {
             </FormField>
 
             <FormField
-              label="Original Loan Amount"
+              label={t("Original Loan Amount")}
               id="new-original-amount"
               required
               error={errors.originalAmount}
@@ -248,7 +250,7 @@ export const CreateLoanPage: React.FC = () => {
             </FormField>
 
             <FormField
-              label="Annual Interest Rate"
+              label={t("Annual Interest Rate")}
               id="new-interest-rate"
               required
               error={errors.annualInterestRate}
@@ -275,15 +277,15 @@ export const CreateLoanPage: React.FC = () => {
             onClick={() => navigate('/admin/loans')}
             disabled={isSubmitting}
           >
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button
             type="submit"
             variant="primary"
             isLoading={isSubmitting}
-            loadingText="Creating Loan..."
+            loadingText={t("Creating Loan...")}
           >
-            Create Loan
+            {t("Create Loan")}
           </Button>
         </div>
       </form>

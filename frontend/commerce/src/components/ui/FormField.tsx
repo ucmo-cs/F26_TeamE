@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../i18n/useLanguage.ts';
 import { cn } from '../../utils/formatting.ts';
 
 export interface FormFieldProps {
@@ -20,6 +21,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   className,
   children,
 }) => {
+  const { t } = useLanguage();
   return (
     <div className={cn('flex flex-col space-y-1.5', className)}>
       {label && (
@@ -37,7 +39,7 @@ export const FormField: React.FC<FormFieldProps> = ({
           id={id ? `${id}-error` : undefined}
           className="text-[12px] leading-[16px] text-[#B42318] mt-1 font-normal"
         >
-          {error}
+          {t(error)}
         </p>
       )}
       {!error && hint && (

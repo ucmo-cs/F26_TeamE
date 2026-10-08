@@ -1,3 +1,4 @@
+import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth.ts';
@@ -7,8 +8,10 @@ import { Card } from '../../components/ui/Card.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
 import { TextInput } from '../../components/ui/TextInput.tsx';
 import { DEMO_ADMIN_CREDENTIALS } from '../../data/mockData.ts';
+import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher.tsx';
 
 export const AdminLoginPage: React.FC = () => {
+  const { t } = useLanguage();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -43,11 +46,12 @@ export const AdminLoginPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-[#F5F7FA] flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-[420px] -mt-12">
+        <div className="flex justify-end mb-4"><LanguageSwitcher /></div>
         <div className="text-center mb-6">
           <h1 className="text-2xl font-semibold text-[#172033] tracking-tight">
             FivePoint Bank
           </h1>
-          <p className="text-sm text-[#5E6B7A] mt-1">Administrator Portal</p>
+          <p className="text-sm text-[#5E6B7A] mt-1">{t("Administrator Portal")}</p>
         </div>
 
         <Card className="p-8 shadow-[0_1px_2px_rgba(16,24,40,0.04)] border-[#D7DEE7]">
@@ -58,25 +62,25 @@ export const AdminLoginPage: React.FC = () => {
               </Alert>
             )}
 
-            <FormField label="Username" id="admin-username" required>
+            <FormField label={t("Username")} id="admin-username" required>
               <TextInput
                 id="admin-username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter admin username"
+                placeholder={t("Enter admin username")}
                 autoComplete="username"
                 required
               />
             </FormField>
 
-            <FormField label="Password" id="admin-password" required>
+            <FormField label={t("Password")} id="admin-password" required>
               <TextInput
                 id="admin-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
+                placeholder={t("Enter password")}
                 autoComplete="current-password"
                 required
               />
@@ -87,9 +91,9 @@ export const AdminLoginPage: React.FC = () => {
               variant="primary"
               className="w-full mt-2"
               isLoading={isLoading}
-              loadingText="Logging in..."
+              loadingText={t("Logging in...")}
             >
-              Log In
+              {t("Log In")}
             </Button>
           </form>
 
@@ -100,17 +104,17 @@ export const AdminLoginPage: React.FC = () => {
               setPassword(DEMO_ADMIN_CREDENTIALS.password);
               setError(null);
             }}
-            title="Click to fill demo credentials"
+            title={t("Click to fill demo credentials")}
             className="mt-6 p-3.5 bg-[#EAF1F8] border border-[#BBC6D3]/50 rounded-[6px] text-xs text-[#172033] cursor-pointer hover:bg-[#dfeaf4] transition-colors"
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="font-semibold text-[#12345B]">Demo credentials</span>
-              <span className="text-[10px] text-[#5E6B7A] font-normal underline">Auto-fill</span>
+              <span className="font-semibold text-[#12345B]">{t("Demo credentials")}</span>
+              <span className="text-[10px] text-[#5E6B7A] font-normal underline">{t("Auto-fill")}</span>
             </div>
             <div className="text-[#5E6B7A] font-mono leading-relaxed">
-              Username: <span className="text-[#172033] font-medium">{DEMO_ADMIN_CREDENTIALS.username}</span>
+              {t("Username:")} <span className="text-[#172033] font-medium">{DEMO_ADMIN_CREDENTIALS.username}</span>
               <br />
-              Password: <span className="text-[#172033] font-medium">{DEMO_ADMIN_CREDENTIALS.password}</span>
+              {t("Password:")} <span className="text-[#172033] font-medium">{DEMO_ADMIN_CREDENTIALS.password}</span>
             </div>
           </div>
         </Card>
@@ -121,7 +125,7 @@ export const AdminLoginPage: React.FC = () => {
             onClick={() => navigate('/customer/login')}
             className="text-xs text-[#5E6B7A] hover:text-[#12345B] cursor-pointer"
           >
-            Go to Customer Login →
+            {t("Go to Customer Login →")}
           </button>
         </div>
       </div>

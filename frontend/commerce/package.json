@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "npx tsx test-foundation.ts && npx tsx test-browser.ts",
     "test:unit": "npx tsx test-foundation.ts",
+    "test:language": "npx tsx test-language.ts",
     "test:e2e": "npx tsx test-browser.ts",
     "test:admin": "npx tsx test-admin-login.ts",
     "test:loans": "npx tsx test-active-loans.ts",
