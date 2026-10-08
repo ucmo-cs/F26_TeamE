@@ -30,10 +30,44 @@ public class Login {
 		this.adminService = adminService;
 	}
 
-    // Endpoint to serve the login page
-	@GetMapping("/login")
-	public String loginPage() {
-		return "forward:/login.html";
+	@PostMapping("/api/login")
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> unifiedLogin(
+			@RequestBody LoginRequest request,
+			HttpSession session) {
+		Optional<Admin> authenticatedAdmin = adminService.authenticate(request.username(), request.password());
+		if (authenticatedAdmin.isPresent()) {
+			Admin admin = authenticatedAdmin.get();
+			session.setAttribute("userId", admin.getId());
+			session.setAttribute("username", admin.getUsername());
+			session.setAttribute("role", "ADMIN");
+			return ResponseEntity.ok(Map.of(
+					"status", "ok",
+					"role", "ADMIN",
+					"username", admin.getUsername()));
+		}
+
+		Optional<User> authenticatedUser = userService.authenticate(request.username(), request.password());
+		if (authenticatedUser.isPresent() && !authenticatedUser.get().isAdmin()) {
+			User user = authenticatedUser.get();
+			session.setAttribute("userId", user.getId());
+			session.setAttribute("username", user.getUsername());
+			session.setAttribute("role", "USER");
+			return ResponseEntity.ok(Map.of(
+					"status", "ok",
+					"role", "USER",
+					"username", user.getUsername()));
+		}
+
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+				.body(Map.of("status", "error", "message", "Invalid credentials"));
+	}
+
+	@PostMapping("/api/logout")
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> apiLogout(HttpSession session) {
+		session.invalidate();
+		return ResponseEntity.ok(Map.of("status", "ok"));
 	}
 
 	@PostMapping("/api/admin/login")
