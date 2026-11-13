@@ -2,7 +2,7 @@ import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth.ts';
-import { mockCustomerApi } from '../../api/mockCustomerApi.ts';
+import { customerApi } from '../../api/customerApi.ts';
 import type { Loan } from '../../types/loan.ts';
 import { formatFrequencyLabel, formatScheduleDay } from '../../utils/paymentSchedule.ts';
 import { Card } from '../../components/ui/Card.tsx';
@@ -32,12 +32,8 @@ export const CustomerLoanPage: React.FC = () => {
 
   useEffect(() => {
     if (currentUser) {
-      mockCustomerApi
-        .getCustomerLoan({
-          loanId: currentUser.loanId,
-          customerId: currentUser.id,
-          email: currentUser.usernameOrEmail,
-        })
+      customerApi
+        .getCustomerLoan()
         .then((data) => {
           setLoan(data);
           setIsLoading(false);

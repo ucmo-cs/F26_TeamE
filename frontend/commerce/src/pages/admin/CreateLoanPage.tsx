@@ -2,7 +2,7 @@ import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
-import { mockAdminLoansApi } from '../../api/mockAdminLoansApi.ts';
+import { adminLoansApi } from '../../api/adminLoansApi.ts';
 import { Alert } from '../../components/ui/Alert.tsx';
 import { Button } from '../../components/ui/Button.tsx';
 import { Card } from '../../components/ui/Card.tsx';
@@ -95,7 +95,7 @@ export const CreateLoanPage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const newLoan = await mockAdminLoansApi.createLoan({
+      const newLoan = await adminLoansApi.createLoan({
         customerName: customerName.trim(),
         customerEmail: customerEmail.trim().toLowerCase(),
         customerPhone: customerPhone.trim(),
@@ -105,11 +105,11 @@ export const CreateLoanPage: React.FC = () => {
       });
 
       // Navigate to the new loan detail page per Content Spec Section 17, Page A3
-      navigate(`/admin/loans/${newLoan.id}`, {
+      navigate(`/admin/loans/${newLoan.id ?? newLoan.loanId}`, {
         state: {
           creationSuccess: true,
-          customerEmail: newLoan.customer.email,
-          password: 'customer123',
+          customerEmail: customerEmail.trim().toLowerCase(),
+          password: newLoan.temporaryPassword,
         },
       });
     } catch (err) {
@@ -122,7 +122,7 @@ export const CreateLoanPage: React.FC = () => {
     <div>
       <PageHeader
         title={t("Create New Loan")}
-        description={t("Create a new loan and generate a customer prototype account.")}
+        description={t("Create a new loan and generate a customer account.")}
         backAction={
           <button
             type="button"

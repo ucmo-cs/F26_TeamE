@@ -54,8 +54,8 @@ public class LoanTrackerService {
 	public Map<String, Object> getAdminLoan(long loanId) {
 		List<Map<String, Object>> rows = jdbc.query("""
 				SELECT l.id, l.originated_on, l.remaining_balance, l.original_amount, l.interest_rate,
-				       c.name, c.email, c.phone,
-				       b.bank_name, b.routing_number, b.account_number, b.account_holder_name,
+				       c.id AS customer_id, c.name, c.email, c.phone,
+				       b.bank_name, b.routing_number, b.account_number, b.account_holder_name, b.account_type,
 				       s.frequency, s.amount AS schedule_amount, s.day_of_month, s.day_of_week, s.start_date
 				FROM loans l
 				JOIN customers c ON c.id = l.customer_id
@@ -74,7 +74,10 @@ public class LoanTrackerService {
 		String name = required(body, "customerName");
 		String email = required(body, "customerEmail").toLowerCase();
 		String phone = required(body, "customerPhone");
-		LocalDate originatedOn = LocalDate.parse(required(body, "originationDate"));
+		String originatedRaw = body.get("originationDate") != null
+				? required(body, "originationDate")
+				: required(body, "loanDate");
+		LocalDate originatedOn = LocalDate.parse(originatedRaw);
 		BigDecimal originalAmount = decimal(body.get("originalAmount"));
 		BigDecimal interestRate = decimal(body.get("interestRate"));
 		if (originalAmount.compareTo(BigDecimal.ZERO) <= 0) {
@@ -116,17 +119,97 @@ public class LoanTrackerService {
 				loanId, email, username, password);
 
 		return Map.of(
+				"id", String.valueOf(loanId),
 				"loanId", loanId,
 				"username", username,
 				"temporaryPassword", password,
 				"message", "Loan created. Customer credentials were generated for " + email + ".");
 	}
 
+	@Transactional
+	public Map<String, Object> updateAdminLoan(long loanId, Map<String, Object> body) {
+		Map<String, Object> existing = getAdminLoan(loanId);
+		Object customerIdObj = existing.get("customerId");
+		if (customerIdObj == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Loan not found");
+		}
+		long customerId = ((Number) customerIdObj).longValue();
+
+		BigDecimal remaining = (BigDecimal) existing.get("amountOwed");
+		BigDecimal originalAmount = body.get("originalAmount") != null
+				? decimal(body.get("originalAmount"))
+				: (BigDecimal) existing.get("originalAmount");
+		if (originalAmount.compareTo(remaining) < 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"Original amount cannot be less than the remaining balance");
+		}
+		BigDecimal interestRate = body.get("interestRate") != null
+				? decimal(body.get("interestRate"))
+				: (BigDecimal) existing.get("interestRate");
+		LocalDate originatedOn = body.get("originationDate") != null
+				? LocalDate.parse(required(body, "originationDate"))
+				: LocalDate.parse(Objects.toString(existing.get("originationDate")));
+
+		jdbc.update("""
+				UPDATE loans
+				SET originated_on = ?, original_amount = ?, interest_rate = ?
+				WHERE id = ?
+				""", Date.valueOf(originatedOn), originalAmount, interestRate, loanId);
+
+		jdbc.update("UPDATE customers SET name = ?, email = ?, phone = ? WHERE id = ?",
+				required(body, "customerName"),
+				required(body, "customerEmail").toLowerCase(),
+				required(body, "customerPhone"),
+				customerId);
+
+		upsertBankAccount(customerId, body, required(body, "customerName"));
+
+		boolean clearSchedule = Boolean.parseBoolean(String.valueOf(body.getOrDefault("clearSchedule", "false")));
+		if (clearSchedule) {
+			jdbc.update("DELETE FROM payment_schedules WHERE loan_id = ?", loanId);
+		} else if (body.get("frequency") != null && !body.get("frequency").toString().isBlank()) {
+			saveScheduleForLoan(loanId, remaining, interestRate, originatedOn, body);
+		}
+
+		return getAdminLoan(loanId);
+	}
+
+	@Transactional
+	public Map<String, Object> updateCustomerPassword(long loanId, Map<String, Object> body) {
+		List<Long> userIds = jdbc.query("""
+				SELECT c.user_id
+				FROM loans l
+				JOIN customers c ON c.id = l.customer_id
+				WHERE l.id = ?
+				""", (rs, i) -> rs.getLong(1), loanId);
+		if (userIds.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Loan not found");
+		}
+
+		boolean generate = Boolean.parseBoolean(String.valueOf(body.getOrDefault("generate", "false")));
+		String password;
+		if (generate) {
+			password = randomPassword();
+		} else {
+			password = required(body, "password");
+			if (password.length() < 4) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 4 characters");
+			}
+		}
+
+		int updated = jdbc.update("UPDATE users SET password = ? WHERE id = ?", password, userIds.get(0));
+		if (updated == 0) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer login was not found");
+		}
+
+		return Map.of("password", password, "message", "Customer password updated");
+	}
+
 	public Map<String, Object> getCustomerLoan(long userId) {
 		List<Map<String, Object>> rows = jdbc.query("""
 				SELECT l.id, l.originated_on, l.remaining_balance, l.original_amount, l.interest_rate,
 				       c.id AS customer_id, c.name, c.email, c.phone,
-				       b.bank_name, b.routing_number, b.account_number, b.account_holder_name,
+				       b.bank_name, b.routing_number, b.account_number, b.account_holder_name, b.account_type,
 				       s.frequency, s.amount AS schedule_amount, s.day_of_month, s.day_of_week, s.start_date
 				FROM customers c
 				LEFT JOIN loans l ON l.customer_id = c.id
@@ -159,30 +242,7 @@ public class LoanTrackerService {
 		jdbc.update("UPDATE customers SET name = ?, email = ?, phone = ? WHERE id = ?",
 				name, email, phone, customerId);
 
-		String bankName = stringOrEmpty(body.get("bankName"));
-		String routing = stringOrEmpty(body.get("routingNumber"));
-		String account = stringOrEmpty(body.get("accountNumber"));
-		String holder = stringOrEmpty(body.get("accountHolderName"));
-		if (holder.isBlank()) {
-			holder = name;
-		}
-
-		if (!bankName.isBlank() && !routing.isBlank() && !account.isBlank()) {
-			Integer count = jdbc.queryForObject(
-					"SELECT COUNT(*) FROM bank_accounts WHERE customer_id = ?", Integer.class, customerId);
-			if (count != null && count > 0) {
-				jdbc.update("""
-						UPDATE bank_accounts
-						SET bank_name = ?, routing_number = ?, account_number = ?, account_holder_name = ?
-						WHERE customer_id = ?
-						""", bankName, routing, account, holder, customerId);
-			} else {
-				jdbc.update("""
-						INSERT INTO bank_accounts (customer_id, bank_name, routing_number, account_number, account_holder_name)
-						VALUES (?, ?, ?, ?, ?)
-						""", customerId, bankName, routing, account, holder);
-			}
-		}
+		upsertBankAccount(customerId, body, name);
 
 		return getCustomerLoan(userId);
 	}
@@ -211,13 +271,18 @@ public class LoanTrackerService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No loan to schedule");
 		}
 		long loanId = ((Number) loanIdObj).longValue();
-		String frequency = normalizeFrequency(required(body, "frequency"));
-		BigDecimal amount = decimal(body.get("paymentAmount") != null ? body.get("paymentAmount") : body.get("amount"));
-		LocalDate startDate = LocalDate.parse(required(body, "startDate"));
-
 		BigDecimal owed = (BigDecimal) loan.get("amountOwed");
 		BigDecimal rate = (BigDecimal) loan.get("interestRate");
 		LocalDate originated = LocalDate.parse(Objects.toString(loan.get("originationDate")));
+		saveScheduleForLoan(loanId, owed, rate, originated, body);
+		return getCustomerLoan(userId);
+	}
+
+	private void saveScheduleForLoan(long loanId, BigDecimal owed, BigDecimal rate,
+			LocalDate originated, Map<String, Object> body) {
+		String frequency = normalizeFrequency(required(body, "frequency"));
+		BigDecimal amount = decimal(body.get("paymentAmount") != null ? body.get("paymentAmount") : body.get("amount"));
+		LocalDate startDate = LocalDate.parse(required(body, "startDate"));
 		BigDecimal minimum = calc.minimumPayment(owed, rate, calc.remainingTermMonths(originated), frequency);
 		if (amount.compareTo(minimum) < 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -249,7 +314,38 @@ public class LoanTrackerService {
 					VALUES (?, ?, ?, ?, ?, ?)
 					""", loanId, frequency, amount, dayOfMonth, dayOfWeek, Date.valueOf(startDate));
 		}
-		return getCustomerLoan(userId);
+	}
+
+	private void upsertBankAccount(long customerId, Map<String, Object> body, String defaultHolder) {
+		String bankName = stringOrEmpty(body.get("bankName"));
+		String routing = stringOrEmpty(body.get("routingNumber"));
+		String account = stringOrEmpty(body.get("accountNumber"));
+		String holder = stringOrEmpty(body.get("accountHolderName"));
+		if (holder.isBlank()) {
+			holder = defaultHolder;
+		}
+		String accountType = stringOrEmpty(body.get("accountType")).toUpperCase();
+		if (!"SAVINGS".equals(accountType)) {
+			accountType = "CHECKING";
+		}
+		if (bankName.isBlank() || routing.isBlank() || account.isBlank()) {
+			return;
+		}
+
+		Integer count = jdbc.queryForObject(
+				"SELECT COUNT(*) FROM bank_accounts WHERE customer_id = ?", Integer.class, customerId);
+		if (count != null && count > 0) {
+			jdbc.update("""
+					UPDATE bank_accounts
+					SET bank_name = ?, routing_number = ?, account_number = ?, account_holder_name = ?, account_type = ?
+					WHERE customer_id = ?
+					""", bankName, routing, account, holder, accountType, customerId);
+		} else {
+			jdbc.update("""
+					INSERT INTO bank_accounts (customer_id, bank_name, routing_number, account_number, account_holder_name, account_type)
+					VALUES (?, ?, ?, ?, ?, ?)
+					""", customerId, bankName, routing, account, holder, accountType);
+		}
 	}
 
 	private Map<String, Object> loanDetail(java.sql.ResultSet rs) throws java.sql.SQLException {
@@ -257,6 +353,7 @@ public class LoanTrackerService {
 		long loanId = rs.getLong("id");
 		if (rs.wasNull() || loanId == 0) {
 			loan.put("id", null);
+			loan.put("customerId", rs.getObject("customer_id"));
 			loan.put("customerName", rs.getString("name"));
 			loan.put("customerEmail", rs.getString("email"));
 			loan.put("customerPhone", rs.getString("phone"));
@@ -264,6 +361,7 @@ public class LoanTrackerService {
 			loan.put("routingNumber", rs.getString("routing_number"));
 			loan.put("accountNumber", rs.getString("account_number"));
 			loan.put("accountHolderName", rs.getString("account_holder_name"));
+			loan.put("accountType", rs.getString("account_type"));
 			return loan;
 		}
 
@@ -277,6 +375,7 @@ public class LoanTrackerService {
 		LocalDate startDate = start == null ? null : start.toLocalDate();
 
 		loan.put("id", loanId);
+		loan.put("customerId", rs.getObject("customer_id"));
 		loan.put("customerName", rs.getString("name"));
 		loan.put("customerEmail", rs.getString("email"));
 		loan.put("customerPhone", rs.getString("phone"));
@@ -288,6 +387,7 @@ public class LoanTrackerService {
 		loan.put("routingNumber", rs.getString("routing_number"));
 		loan.put("accountNumber", rs.getString("account_number"));
 		loan.put("accountHolderName", rs.getString("account_holder_name"));
+		loan.put("accountType", rs.getString("account_type"));
 		loan.put("paymentFrequency", frequency);
 		loan.put("paymentAmount", scheduleAmount);
 		Integer dayOfMonth = (Integer) rs.getObject("day_of_month");

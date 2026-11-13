@@ -2,7 +2,7 @@ import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowDown, ArrowUp, ArrowUpDown, Plus, Search } from 'lucide-react';
-import { mockAdminLoansApi } from '../../api/mockAdminLoansApi.ts';
+import { adminLoansApi } from '../../api/adminLoansApi.ts';
 import type { LoanSummary } from '../../types/loan.ts';
 import { Button } from '../../components/ui/Button.tsx';
 import { Card } from '../../components/ui/Card.tsx';
@@ -27,8 +27,8 @@ export const AdminLoansPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    mockAdminLoansApi
-      .getActiveLoans()
+    adminLoansApi
+        .getActiveLoans()
       .then((data) => {
         if (isMounted) {
           setLoans(data);

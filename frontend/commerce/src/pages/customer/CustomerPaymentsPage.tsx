@@ -2,8 +2,7 @@ import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth.ts';
-import { mockCustomerApi } from '../../api/mockCustomerApi.ts';
-import { mockPaymentApi } from '../../api/mockPaymentApi.ts';
+import { customerApi } from '../../api/customerApi.ts';
 import type { DayOfWeek, Loan, PaymentFrequency, PaymentSchedule } from '../../types/loan.ts';
 import { DAYS_OF_WEEK, PAYMENT_FREQUENCIES, formatFrequencyLabel, formatScheduleDay, formatMonthDay } from '../../utils/paymentSchedule.ts';
 import { Card } from '../../components/ui/Card.tsx';
@@ -78,12 +77,8 @@ export const CustomerPaymentsPage: React.FC = () => {
 
   useEffect(() => {
     if (currentUser) {
-      mockCustomerApi
-        .getCustomerLoan({
-          loanId: currentUser.loanId,
-          customerId: currentUser.id,
-          email: currentUser.usernameOrEmail,
-        })
+      customerApi
+        .getCustomerLoan()
         .then((data) => {
           setLoan(data);
           if (data) {
@@ -203,12 +198,11 @@ export const CustomerPaymentsPage: React.FC = () => {
         nextPaymentDate: nextDate,
       };
 
-      const saved = await mockPaymentApi.savePaymentSchedule(loan.id, newSchedule);
+      const updatedLoan = await customerApi.savePaymentSchedule(newSchedule);
 
-      setLoan({
-        ...loan,
-        paymentSchedule: saved,
-      });
+      if (updatedLoan) {
+        setLoan(updatedLoan);
+      }
 
       setSaveSuccess('Payment schedule saved.');
     } catch (err) {

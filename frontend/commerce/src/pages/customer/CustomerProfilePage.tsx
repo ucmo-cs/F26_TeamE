@@ -1,7 +1,7 @@
 import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/useAuth.ts';
-import { mockCustomerApi } from '../../api/mockCustomerApi.ts';
+import { customerApi } from '../../api/customerApi.ts';
 import type { BankAccount, BankAccountType, CustomerProfile, Loan } from '../../types/loan.ts';
 import { Card } from '../../components/ui/Card.tsx';
 import { Button } from '../../components/ui/Button.tsx';
@@ -46,12 +46,8 @@ export const CustomerProfilePage: React.FC = () => {
 
   useEffect(() => {
     if (currentUser) {
-      mockCustomerApi
-        .getCustomerLoan({
-          loanId: currentUser.loanId,
-          customerId: currentUser.id,
-          email: currentUser.usernameOrEmail,
-        })
+      customerApi
+        .getCustomerLoan()
         .then((data) => {
           setLoan(data);
           if (data?.customer) {
@@ -100,20 +96,21 @@ export const CustomerProfilePage: React.FC = () => {
 
     setIsSavingPersonal(true);
     try {
-      const updated = await mockCustomerApi.updateCustomerProfile(
-        initialPersonal.id || currentUser?.id || 'cust-101',
-        {
-          name: personalName.trim(),
-          email: personalEmail.trim(),
-          phone: personalPhone.trim(),
-        },
-        initialPersonal.email
-      );
+      const updatedLoan = await customerApi.updateCustomerProfile({
+        name: personalName.trim(),
+        email: personalEmail.trim(),
+        phone: personalPhone.trim(),
+      });
+      const updated = updatedLoan?.customer;
+      if (!updated) {
+        throw new Error('Unable to save personal information.');
+      }
 
       setInitialPersonal({ ...updated });
       setPersonalName(updated.name);
       setPersonalEmail(updated.email);
       setPersonalPhone(updated.phone);
+      if (updatedLoan) setLoan(updatedLoan);
       setPersonalSuccess('Personal information saved.');
       // Refresh session in context so header reflects new customer name / email immediately
       refreshSession();
@@ -184,21 +181,18 @@ export const CustomerProfilePage: React.FC = () => {
         accountNumber: cleanAccount,
       };
 
-      await mockCustomerApi.updateCustomerBankAccount(
+      const updatedLoan = await customerApi.updateCustomerBankAccount(
         {
-          customerId: currentUser?.id,
-          loanId: currentUser?.loanId,
-          email: currentUser?.usernameOrEmail,
+          id: initialPersonal.id || currentUser?.id || '',
+          name: personalName.trim() || initialPersonal.name,
+          email: personalEmail.trim() || initialPersonal.email,
+          phone: personalPhone.trim() || initialPersonal.phone,
         },
         newAccount
       );
 
-      // Prototype only — do not store raw bank data in browser storage in production.
-      if (loan) {
-        setLoan({
-          ...loan,
-          bankAccount: newAccount,
-        });
+      if (updatedLoan) {
+        setLoan(updatedLoan);
       }
 
       // After save: clear raw form values from active component state
@@ -265,7 +259,7 @@ export const CustomerProfilePage: React.FC = () => {
                   label={t("Email Address")}
                   id="personal-email"
                   required
-                  hint={t("Used for prototype login with password customer123")}
+                  hint={t("Used to sign in to the customer portal")}
                 >
                   <TextInput
                     id="personal-email"

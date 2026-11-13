@@ -47,13 +47,12 @@ The additional `test:*` scripts in `package.json` cover individual admin and cus
 - `src/pages`: admin and customer screens.
 - `src/components`: shared controls and application layout.
 - `src/router` and `src/context`: routes, access guards, and authentication state.
-- `src/api`: asynchronous mock services; no backend connection.
-- `src/utils`: formatting, payment calculations, and prototype storage.
-- `src/data`: demo seed data.
+- `src/api`: REST clients for the Spring backend (`/api/auth`, `/api/admin`, `/api/customer`).
+- `src/utils`: formatting and payment calculations.
+- `src/config`: demo login hints shown on the login pages.
 
-Data and demo sessions persist in browser local storage. Use **Reset Demo Data** in the
-development sidebar to restore defaults. This is a prototype: credentials and bank details
-are simulated and must not be used with real customer data.
+Sessions use the backend cookie. Demo loans live in Postgres (Flyway). Start the stack with
+`docker compose up -d --build` from the repo root, or run Vite with the API on port 8080.
 
 Screen requirements are documented in `loan-repayment-frontend-content-spec.md` and
 `loan-repayment-frontend-rules-style.md`.

@@ -28,6 +28,19 @@ public class UserService {
                 .filter(user -> user.getPassword().equals(password));
     }
 
+    public Optional<User> authenticateUsernameOrEmail(String login, String password) {
+        if (login == null || login.isBlank() || password == null) {
+            return Optional.empty();
+        }
+        String value = login.trim();
+        Optional<User> byUsername = authenticate(value, password);
+        if (byUsername.isPresent()) {
+            return byUsername;
+        }
+        return userRepository.findByCustomerEmail(value)
+                .filter(user -> user.getPassword().equals(password));
+    }
+
     // Method to save a user to the database
     public User save(User user) {
         return userRepository.save(user);

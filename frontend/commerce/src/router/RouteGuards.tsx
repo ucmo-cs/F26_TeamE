@@ -44,7 +44,18 @@ interface GuestOnlyProps {
 }
 
 export const GuestOnly: React.FC<GuestOnlyProps> = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { t } = useLanguage();
+  const { currentUser, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#F5F7FA]">
+        <div className="text-sm text-[#5E6B7A] font-medium animate-pulse">
+          {t("Loading authentication...")}
+        </div>
+      </div>
+    );
+  }
 
   if (currentUser) {
     if (currentUser.role === 'ADMIN') {

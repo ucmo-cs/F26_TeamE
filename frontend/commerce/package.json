@@ -7,19 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "test": "npx tsx test-foundation.ts && npx tsx test-browser.ts",
-    "test:unit": "npx tsx test-foundation.ts",
-    "test:language": "npx tsx test-language.ts",
-    "test:e2e": "npx tsx test-browser.ts",
-    "test:admin": "npx tsx test-admin-login.ts",
-    "test:loans": "npx tsx test-active-loans.ts",
-    "test:details": "npx tsx test-admin-loan-details.ts",
-    "test:create": "npx tsx test-create-loan.ts",
-    "test:custlogin": "npx tsx test-customer-login.ts",
-    "test:myloan": "npx tsx test-customer-my-loan.ts",
-    "test:profile": "npx tsx test-customer-profile.ts",
-    "test:payments": "npx tsx test-customer-payments.ts"
+    "preview": "vite preview"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -40,7 +28,6 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.6",
     "globals": "^17.12.0",
-    "puppeteer-core": "^25.12.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.69.0",

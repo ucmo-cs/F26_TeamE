@@ -1,6 +1,11 @@
 #set the server port and database connection properties
 server:
   port: 8080
+  servlet:
+    session:
+      cookie:
+        same-site: lax
+        http-only: true
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/userdb

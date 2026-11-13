@@ -47,7 +47,7 @@ public class Login {
 					"username", admin.getUsername()));
 		}
 
-		Optional<User> authenticatedUser = userService.authenticate(request.username(), request.password());
+		Optional<User> authenticatedUser = userService.authenticateUsernameOrEmail(request.username(), request.password());
 		if (authenticatedUser.isPresent() && !authenticatedUser.get().isAdmin()) {
 			User user = authenticatedUser.get();
 			session.setAttribute("userId", user.getId());
@@ -98,7 +98,7 @@ public class Login {
 	public ResponseEntity<Map<String, String>> userLogin(
 			@RequestBody LoginRequest request,
 			HttpSession session) { //user authentication
-		Optional<User> authenticatedUser = userService.authenticate(request.username(), request.password());
+		Optional<User> authenticatedUser = userService.authenticateUsernameOrEmail(request.username(), request.password());
 
         //if user is authenticated and not an admin, set session attributes and return success response
 		if (authenticatedUser.isPresent() && !authenticatedUser.get().isAdmin()) { 

@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/Button.tsx';
 import { Card } from '../../components/ui/Card.tsx';
 import { FormField } from '../../components/ui/FormField.tsx';
 import { TextInput } from '../../components/ui/TextInput.tsx';
-import { DEMO_ADMIN_CREDENTIALS } from '../../data/mockData.ts';
+import { DEMO_ADMIN_CREDENTIALS } from '../../config/demoLogins.ts';
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher.tsx';
 
 export const AdminLoginPage: React.FC = () => {

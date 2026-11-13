@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,5 +42,17 @@ public class AdminLoanController {
 	public Map<String, Object> create(@RequestBody Map<String, Object> body, HttpSession session) {
 		SessionAuth.requireAdmin(session);
 		return loans.createLoan(body);
+	}
+
+	@PutMapping("/loans/{id}")
+	public Map<String, Object> update(@PathVariable long id, @RequestBody Map<String, Object> body, HttpSession session) {
+		SessionAuth.requireAdmin(session);
+		return loans.updateAdminLoan(id, body);
+	}
+
+	@PutMapping("/loans/{id}/password")
+	public Map<String, Object> updatePassword(@PathVariable long id, @RequestBody(required = false) Map<String, Object> body, HttpSession session) {
+		SessionAuth.requireAdmin(session);
+		return loans.updateCustomerPassword(id, body == null ? Map.of() : body);
 	}
 }

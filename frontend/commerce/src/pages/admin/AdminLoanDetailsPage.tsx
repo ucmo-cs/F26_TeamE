@@ -2,7 +2,7 @@ import { useLanguage } from "../../i18n/useLanguage.ts";
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
-import { mockAdminLoansApi } from '../../api/mockAdminLoansApi.ts';
+import { adminLoansApi } from '../../api/adminLoansApi.ts';
 import type { BankAccount, BankAccountType, DayOfWeek, Loan, PaymentFrequency, PaymentSchedule } from '../../types/loan.ts';
 import { DAYS_OF_WEEK, formatFrequencyLabel, formatScheduleDay, formatMonthDay } from '../../utils/paymentSchedule.ts';
 import { Alert } from '../../components/ui/Alert.tsx';
@@ -47,6 +47,10 @@ export const AdminLoanDetailsPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [updatedPassword, setUpdatedPassword] = useState<string | null>(null);
 
   // Edit form state
   const [editOriginalAmount, setEditOriginalAmount] = useState<string>('');
@@ -107,7 +111,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
 
   useEffect(() => {
     if (loanId) {
-      mockAdminLoansApi
+      adminLoansApi
         .getLoanById(loanId)
         .then((data) => {
           setLoan(data);
@@ -174,6 +178,48 @@ export const AdminLoanDetailsPage: React.FC = () => {
     }
     setFormError(null);
     setIsEditing(false);
+  };
+
+  const applyPasswordResult = (password: string) => {
+    setUpdatedPassword(password);
+    setNewPassword('');
+    setPasswordError(null);
+  };
+
+  const handleSetPassword = async () => {
+    if (!loan) return;
+    const password = newPassword.trim();
+    if (password.length < 4) {
+      setPasswordError('Password must be at least 4 characters.');
+      setUpdatedPassword(null);
+      return;
+    }
+    setIsSavingPassword(true);
+    setPasswordError(null);
+    try {
+      const result = await adminLoansApi.setCustomerPassword(loan.id, { password });
+      applyPasswordResult(result.password);
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Unable to update password.');
+      setUpdatedPassword(null);
+    } finally {
+      setIsSavingPassword(false);
+    }
+  };
+
+  const handleGeneratePassword = async () => {
+    if (!loan) return;
+    setIsSavingPassword(true);
+    setPasswordError(null);
+    try {
+      const result = await adminLoansApi.setCustomerPassword(loan.id, { generate: true });
+      applyPasswordResult(result.password);
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Unable to generate password.');
+      setUpdatedPassword(null);
+    } finally {
+      setIsSavingPassword(false);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -254,7 +300,7 @@ export const AdminLoanDetailsPage: React.FC = () => {
 
     setIsSaving(true);
     try {
-      const updated = await mockAdminLoansApi.updateLoan(loan.id, {
+      const updated = await adminLoansApi.updateLoan(loan.id, {
         originalAmount: originalAmountNum,
         annualInterestRate: interestRateNum,
         loanDate: editLoanDate,
@@ -360,12 +406,12 @@ export const AdminLoanDetailsPage: React.FC = () => {
           <div className="space-y-1">
             <h5 className="font-semibold text-inherit text-sm">{t("Loan created successfully.")}</h5>
             <div className="text-xs text-inherit font-mono pt-1">
-              {t("Prototype customer login:")} <span className="font-semibold">{creationState.customerEmail}</span>
+              {t("Customer login:")} <span className="font-semibold">{creationState.customerEmail}</span>
               <br />
-              {t("Password:")} <span className="font-semibold">customer123</span>
+              {t("Password:")} <span className="font-semibold">{creationState.password}</span>
             </div>
             <p className="text-xs text-inherit/80 pt-1 italic">
-              {t("No email was sent because this is a frontend prototype.")}
+              {t("No email was sent. Share these credentials with the customer.")}
             </p>
           </div>
         </Alert>
@@ -549,6 +595,59 @@ export const AdminLoanDetailsPage: React.FC = () => {
               ) : (
                 <span className="text-sm font-medium text-[#172033]">{loan.customer.phone}</span>
               )}
+            </div>
+          </div>
+
+          <div className="mt-6 pt-5 border-t border-[#D7DEE7]/60">
+            <h4 className="text-sm font-semibold text-[#172033] mb-1">{t("Customer Password")}</h4>
+            <p className="text-xs text-[#5E6B7A] mb-4">
+              {t("Set a new password for this customer's login. The current password is not shown.")}
+            </p>
+            {passwordError && (
+              <Alert variant="error" className="mb-3">
+                {passwordError}
+              </Alert>
+            )}
+            {updatedPassword && (
+              <Alert variant="success" className="mb-3">
+                <div className="text-xs">
+                  {t("Password updated. Share this with the customer:")}{' '}
+                  <span className="font-mono font-semibold">{updatedPassword}</span>
+                </div>
+              </Alert>
+            )}
+            <div className="flex flex-wrap items-end gap-3">
+              <FormField label={t("New Password")} id="admin-set-password" className="min-w-[220px] flex-1">
+                <TextInput
+                  id="admin-set-password"
+                  type="text"
+                  value={newPassword}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                    setPasswordError(null);
+                  }}
+                  placeholder={t("Enter a new password")}
+                  autoComplete="new-password"
+                />
+              </FormField>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleSetPassword}
+                isLoading={isSavingPassword}
+                loadingText={t("Saving...")}
+                disabled={isSavingPassword}
+              >
+                {t("Set Password")}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleGeneratePassword}
+                disabled={isSavingPassword}
+              >
+                {t("Generate Password")}
+              </Button>
             </div>
           </div>
         </Card>

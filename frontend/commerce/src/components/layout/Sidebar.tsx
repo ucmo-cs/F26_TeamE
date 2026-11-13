@@ -1,9 +1,8 @@
 import { useLanguage } from "../../i18n/useLanguage.ts";
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { CreditCard, FilePlus2, User, CalendarDays, RefreshCw } from 'lucide-react';
+import { CreditCard, FilePlus2, User, CalendarDays } from 'lucide-react';
 import { useAuth } from '../../context/useAuth.ts';
-import { resetPrototypeState } from '../../utils/prototypeStorage.ts';
 import { cn } from '../../utils/formatting.ts';
 
 export const Sidebar: React.FC = () => {
@@ -23,13 +22,6 @@ export const Sidebar: React.FC = () => {
   ];
 
   const navItems = isAdmin ? adminNav : customerNav;
-
-  const handleResetDemoData = () => {
-    if (window.confirm(t('Reset prototype to original demo data and log out?'))) {
-      resetPrototypeState();
-      window.location.href = isAdmin ? '/admin/login' : '/customer/login';
-    }
-  };
 
   return (
     <aside className="w-[240px] shrink-0 bg-[#0D2742] text-white flex flex-col justify-between select-none min-h-[calc(100vh-64px)]">
@@ -56,21 +48,6 @@ export const Sidebar: React.FC = () => {
           );
         })}
       </nav>
-
-      {/* Development Prototype Reset Tool */}
-      {import.meta.env.DEV && (
-        <div className="p-3 border-t border-[#173B61]/60">
-          <button
-            type="button"
-            onClick={handleResetDemoData}
-            title={t("Restore prototype data to default seed state")}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs text-[#BBC6D3] hover:text-white bg-[#173B61]/40 hover:bg-[#173B61] rounded-[6px] transition-colors cursor-pointer"
-          >
-            <RefreshCw className="h-3.5 w-3.5 shrink-0" />
-            <span>{t("Reset Demo Data")}</span>
-          </button>
-        </div>
-      )}
     </aside>
   );
 };
